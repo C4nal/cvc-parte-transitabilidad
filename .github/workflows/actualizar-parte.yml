@@ -1,6 +1,8 @@
 # ============================================================
 # CVC - Robot del parte de transitabilidad (GitHub Actions)
-# Corre solo en la nube. Baja el parte + titulares y actualiza parte.json.
+# Corre solo en la nube. Baja el parte + titulares, actualiza parte.json
+# y lo publica en Netlify (requiere los secrets NETLIFY_AUTH_TOKEN y
+# NETLIFY_SITE_ID; ver Paso 4 de la guia).
 # Deja un resumen legible en la pestaña Actions (sin necesidad de email).
 # GitHub avisa automaticamente por mail si algun run FALLA.
 #
@@ -48,6 +50,29 @@ jobs:
           else
             echo "Sin cambios en el parte."
           fi
+
+      - name: Publicar en Netlify (parte.json + pagina de estado)
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          if [ -z "$NETLIFY_AUTH_TOKEN" ] || [ -z "$NETLIFY_SITE_ID" ]; then
+            echo "ERROR: faltan los secrets NETLIFY_AUTH_TOKEN y/o NETLIFY_SITE_ID."
+            echo "Cargalos en: repo -> Settings -> Secrets and variables -> Actions (Paso 4 de la guia)."
+            exit 1
+          fi
+          mkdir -p _site
+          cp parte.json _site/
+          if [ -f index.html ]; then cp index.html _site/; fi
+          # _headers habilita CORS para que el overlay (vMix) pueda leer el JSON
+          printf '/*\n  Access-Control-Allow-Origin: *\n\n/parte.json\n  Cache-Control: public, max-age=0, must-revalidate\n' > _site/_headers
+          (cd _site && zip -qr ../site.zip .)
+          curl -sSf -X POST \
+            -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" \
+            -H "Content-Type: application/zip" \
+            --data-binary @site.zip \
+            "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/deploys" -o /dev/null
+          echo "Publicado en Netlify."
 
       - name: Mostrar resumen y diagnostico (siempre)
         if: always()
