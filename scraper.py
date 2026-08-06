@@ -15,6 +15,7 @@ import re
 import io
 import sys
 import json
+import time
 import unicodedata
 from datetime import datetime, timezone, timedelta
 
@@ -38,11 +39,18 @@ FUENTES = {
                    "pdf": AGVP_BASE + "PartesProvinciales.pdf"},
 }
 I24_URL = "https://i24.com.ar/"
+# Ademas de la portada se leen estas secciones (mas chances de notas nuevas):
+I24_SECCIONES = ["categoria/2/actualidad", "categoria/5/politica",
+                 "categoria/8/policiales", "categoria/21/nacionales"]
+# Respaldo si i24 bloquea al robot (p. ej. Cloudflare): notas via Google News.
+I24_GNEWS = ("https://news.google.com/rss/search?q=site:i24.com.ar"
+             "&hl=es-419&gl=AR&ceid=AR:es-419")
 
-CORREDOR_NORTE = {
-    "Nacional":   {"3", "40", "281"},
-    "Provincial": {"12", "43", "47", "39", "49", "99", "16", "18", "41", "14"},
-}
+# Rutas priorizadas por cercania a Caleta Olivia: se muestra 1 tramo de cada
+# una (en este orden), despues el 2do de cada una, y asi. Editable.
+PRIORIDAD_RUTAS = ["3", "12", "14", "43", "81", "281", "17", "40", "288"]
+MAX_TRAMOS_POR_RUTA = 3      # variedad: como maximo N tramos por ruta
+OCULTAR_SIN_DATOS = True     # ocultar tramos "Sin datos. Consultar..."
 ESTADOS_SIEMPRE = {"CORTADO", "RESTRINGIDO"}
 MAX_FILAS = 18
 CANT_AVISOS = 10
@@ -59,7 +67,9 @@ LOCALES = ["santa cruz", "caleta", "caleta olivia", "rio gallegos", "río galleg
 HEADERS = {
     "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"),
-    "Accept": "text/html,application/xhtml+xml,application/pdf,*/*",
+    "Accept": "text/html,application/xhtml+xml,application/xml,application/pdf,*/*",
+    "Accept-Language": "es-AR,es;q=0.9,en;q=0.6",
+    "Referer": "https://www.google.com/",
 }
 TZ_AR = timezone(timedelta(hours=-3))
 
@@ -527,20 +537,54 @@ def obtener_parte(tipo, urls):
     return {"filas": filas, "fecha_leg": fleg, "origen": origen, "diag": diag, "muestras": muestras}
 
 
+def _pulir_obs(f):
+    """Saca de observaciones el estado de calzada repetido y prolija el texto."""
+    obs = f.get("observaciones", "") or ""
+    c = (f.get("calzada") or "").strip()
+    if c and c != "-":
+        pat = re.escape(c).replace(r"\-", r"\s*-\s*")
+        obs = re.sub(pat, " ", obs, flags=re.I)
+    obs = limpiar(obs).strip(" ./")
+    f["observaciones"] = (obs + ".") if obs else "Sin novedades."
+    return f
+
+
 def curar(filas_nac, filas_prov):
-    todas = filas_nac + filas_prov
+    """Seleccion final: variedad de rutas (pocos tramos de cada una), en el
+    orden de PRIORIDAD_RUTAS (las mas cercanas a Caleta Olivia primero).
+    Ronda 1: el tramo mas cercano de cada ruta prioritaria; despues cortes y
+    restricciones de cualquier ruta; luego 2da y 3ra ronda de tramos."""
+    todas = [_pulir_obs(dict(f)) for f in filas_nac + filas_prov]
+    if OCULTAR_SIN_DATOS:
+        todas = [f for f in todas if f["estado"] in ESTADOS_SIEMPRE
+                 or "sin datos" not in norm(f["observaciones"])]
+
     elegidas, vistas = [], set()
 
     def agregar(f):
         clave = (f["ruta"], norm(f["tramo"]))
-        if clave in vistas:
+        if clave in vistas or len(elegidas) >= MAX_FILAS:
             return
         vistas.add(clave)
         elegidas.append(f)
 
-    for f in todas:
-        if f.get("_nro", "") in CORREDOR_NORTE.get(f["tipo"], set()):
-            agregar(f)
+    grupos = []
+    for nro in PRIORIDAD_RUTAS:
+        g = [f for f in todas if f.get("_nro") == nro][:MAX_TRAMOS_POR_RUTA]
+        if g:
+            grupos.append(g)
+
+    ronda = 0
+    while ronda < MAX_TRAMOS_POR_RUTA and len(elegidas) < MAX_FILAS:
+        for g in grupos:
+            if ronda < len(g):
+                agregar(g[ronda])
+        if ronda == 0:
+            for f in todas:
+                if f["estado"] in ESTADOS_SIEMPRE:
+                    agregar(f)
+        ronda += 1
+
     for f in todas:
         if f["estado"] in ESTADOS_SIEMPRE:
             agregar(f)
@@ -551,45 +595,95 @@ def curar(filas_nac, filas_prov):
 # ============================================================
 # Titulares i24
 # ============================================================
-def obtener_avisos():
-    try:
-        txt = http_get(I24_URL)
-    except Exception as e:
-        print(f"[i24] error: {e}", file=sys.stderr)
-        return []
-    soup = BeautifulSoup(txt, "lxml")
-    vistos, items = set(), []
+def _extraer_notas(html_txt):
+    """Devuelve {id_nota: titulo} de una pagina de i24 (id mas alto = mas nueva)."""
+    soup = BeautifulSoup(html_txt, "lxml")
+    notas = {}
     for a in soup.select('a[href*="/contenido/"]'):
-        href = a.get("href", "")
-        m = re.search(r"/contenido/(\d+)", href)
+        m = re.search(r"/contenido/(\d+)", a.get("href", ""))
         if not m:
             continue
-        cid = int(m.group(1))            # id de la nota: mas alto = mas nuevo
+        cid = int(m.group(1))
         titulo = limpiar(a.get_text())
-        if len(titulo) < 25 or cid in vistos:
+        if len(titulo) < 25:
             continue
-        vistos.add(cid)
-        items.append((cid, titulo))
-    if not items:
+        if cid not in notas or len(titulo) > len(notas[cid]):
+            notas[cid] = titulo
+    return notas
+
+
+def _avisos_google_news():
+    """Respaldo: ultimas notas de i24 indexadas por Google News (RSS)."""
+    from email.utils import parsedate_to_datetime
+    try:
+        txt = http_get(I24_GNEWS)
+        soup = BeautifulSoup(txt, "xml")
+        items = []
+        epoca = datetime(1970, 1, 1, tzinfo=timezone.utc)
+        for it in soup.find_all("item"):
+            titulo = limpiar(it.title.get_text() if it.title else "")
+            titulo = re.sub(r"\s*[-|]\s*i24(\.com\.ar)?\s*$", "", titulo, flags=re.I)
+            dt = None
+            try:
+                if it.pubDate:
+                    dt = parsedate_to_datetime(it.pubDate.get_text())
+            except Exception:
+                dt = None
+            if len(titulo) >= 25:
+                items.append((dt or epoca, titulo))
+        items.sort(key=lambda x: x[0], reverse=True)
+        DIAG_I24.append(f"- respaldo Google News: OK, {len(items)} notas")
+        return [tt for _, tt in items[:AVISOS_VENTANA]]
+    except Exception as e:
+        DIAG_I24.append(f"- respaldo Google News: ERROR {type(e).__name__}: {e}")
         return []
 
-    # los mas NUEVOS primero (por id) y recortar a la ventana reciente
-    items.sort(key=lambda x: x[0], reverse=True)
-    ventana = [t for _, t in items[:AVISOS_VENTANA]]
 
-    def es_local(t):
-        n = norm(t)
+def obtener_avisos():
+    """Junta las notas mas nuevas de i24 (portada + secciones, con reintentos).
+    Si i24 no responde desde la nube, usa Google News como respaldo.
+    Deja diagnostico en DIAG_I24 (se ve en el resumen del run)."""
+    DIAG_I24.clear()
+    notas = {}
+    urls = [I24_URL] + [I24_URL + s for s in I24_SECCIONES]
+    for url in urls:
+        err = ""
+        for _ in (1, 2):                 # 2 intentos por pagina
+            try:
+                nuevas = _extraer_notas(http_get(url))
+                for cid, tt in nuevas.items():
+                    notas.setdefault(cid, tt)
+                DIAG_I24.append(f"- {url}: OK, {len(nuevas)} notas")
+                err = ""
+                break
+            except Exception as e:
+                err = f"{type(e).__name__}: {e}"
+                time.sleep(3)
+        if err:
+            DIAG_I24.append(f"- {url}: ERROR {err}")
+
+    if notas:
+        ids = sorted(notas, reverse=True)
+        ventana = [notas[i] for i in ids[:AVISOS_VENTANA]]
+        DIAG_I24.append(f"- {len(notas)} notas unicas; ids mas nuevos: {ids[:AVISOS_VENTANA]}")
+    else:
+        ventana = _avisos_google_news()
+    if not ventana:
+        return []
+
+    def es_local(tt):
+        n = norm(tt)
         return any(k in n for k in LOCALES)
 
     if PRIORIZAR_LOCALES:
-        ventana = [t for t in ventana if es_local(t)] + [t for t in ventana if not es_local(t)]
+        ventana = [tt for tt in ventana if es_local(tt)] + [tt for tt in ventana if not es_local(tt)]
 
     orden, vistas_t = [], set()
-    for t in ventana:
-        if norm(t) in vistas_t:
+    for tt in ventana:
+        if norm(tt) in vistas_t:
             continue
-        vistas_t.add(norm(t))
-        orden.append(t)
+        vistas_t.add(norm(tt))
+        orden.append(tt)
         if len(orden) >= CANT_AVISOS:
             break
     return orden
@@ -646,6 +740,9 @@ def escribir_resumen(partes, salida, rutas_ok, avisos_ok):
             L.append(m["muestra_pdf"])
             L.append("```")
             L.append("</details>")
+    L.append("")
+    L.append("### Titulares i24 (diagnostico)")
+    L.extend(DIAG_I24 or ["- (sin diagnostico)"])
     with open("resumen.md", "w", encoding="utf-8") as f:
         f.write("\n".join(L))
 
