@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CVC · Estado del parte de transitabilidad</title>
+<style>
+  :root{--bg:#0a1330;--panel:#111c40;--line:#22315f;--muted:#8a9bc4;--soft:#cdd8ef;
+        --blue:#1E5BFF;--sky:#35b6ff;--green:#37e27f;--yellow:#ffd34d;--orange:#FF9422;--red:#ff4b5f;--pink:#FF2E9A;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--soft);font-family:'Segoe UI',Arial,sans-serif;padding:24px}
+  .wrap{max-width:1000px;margin:0 auto}
+  .bars{height:6px;display:flex;border-radius:6px;overflow:hidden;margin-bottom:18px}
+  .bars i{display:block;flex:1}.bars i:nth-child(1){flex:2;background:var(--blue)}
+  .bars i:nth-child(2){background:var(--pink)}.bars i:nth-child(3){background:var(--orange)}
+  h1{font-size:22px;margin:0 0 4px;color:#fff}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:18px}
+  .meta{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:14px;line-height:1.6}
+  .meta b{color:#fff}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14px}
+  th{background:#16234d;color:var(--sky);text-align:left;padding:10px 12px;text-transform:uppercase;font-size:12px;letter-spacing:1px}
+  td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top}
+  .chip{display:inline-block;padding:2px 10px;border-radius:999px;font-weight:700;font-size:12px;color:#08122b;white-space:nowrap}
+  .NORMAL{background:var(--green)}.PRECAUCION,.PRECAUCIÓN{background:var(--yellow)}
+  .EXTREMA{background:var(--orange)}.RESTRINGIDO{background:var(--orange)}
+  .CORTADO{background:var(--red);color:#fff}.INFORMACION,.INFORMACIÓN{background:var(--sky)}
+  .avisos{margin-top:20px}.avisos li{margin:6px 0}
+  a{color:var(--sky)} .foot{margin-top:24px;color:var(--muted);font-size:12px}
+  .err{color:#ff8a80}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bars"><i></i><i></i><i></i></div>
+  <h1>Parte de transitabilidad · CVC</h1>
+  <div class="sub">Estado del dato que consume la gráfica de vMix. Se actualiza automáticamente.</div>
+
+  <div class="meta" id="meta">Cargando…</div>
+
+  <table id="tabla">
+    <thead><tr><th>Ruta</th><th>Tramo / sector</th><th>Estado</th><th>Calzada</th><th>Observaciones</th></tr></thead>
+    <tbody id="rows"><tr><td colspan="5">Cargando…</td></tr></tbody>
+  </table>
+
+  <div class="avisos">
+    <h1 style="font-size:16px;margin:22px 0 8px">Titulares (ticker i24)</h1>
+    <ul id="avisos"><li>Cargando…</li></ul>
+  </div>
+
+  <div class="foot">
+    Archivo de datos: <a href="parte.json" target="_blank">parte.json</a> ·
+    Fuente rutas: AGVP (Vialidad Provincial) · Titulares: i24.com.ar
+  </div>
+</div>
+
+<script>
+function esc(s){return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+async function cargar(){
+  try{
+    const r = await fetch('parte.json?t=' + Date.now(), {cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    document.getElementById('meta').innerHTML =
+      `<b>Actualizado:</b> ${esc(d.actualizado||'—')} &nbsp;·&nbsp; ` +
+      `<b>Parte Vialidad:</b> Nacional ${esc(d.fecha_parte_nacional||'—')} · Provincial ${esc(d.fecha_parte_provincial||'—')} &nbsp;·&nbsp; ` +
+      `<b>${(d.filas||[]).length}</b> rutas`;
+    document.getElementById('rows').innerHTML = (d.filas||[]).map(f=>
+      `<tr><td><b>${esc(f.ruta)}</b></td><td>${esc(f.tramo)}</td>`+
+      `<td><span class="chip ${esc(f.estado)}">${esc(f.estado)}</span></td>`+
+      `<td>${esc(f.calzada)}</td><td>${esc(f.observaciones)}</td></tr>`).join('') ||
+      '<tr><td colspan="5">Sin datos.</td></tr>';
+    document.getElementById('avisos').innerHTML = (d.avisos||[]).map(a=>`<li>${esc(a)}</li>`).join('');
+  }catch(e){
+    document.getElementById('meta').innerHTML = '<span class="err">No se pudo cargar parte.json: ' + esc(e.message) + '</span>';
+  }
+}
+cargar();
+setInterval(cargar, 5*60*1000);
+</script>
+</body>
+</html>

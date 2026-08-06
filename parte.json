@@ -1,0 +1,160 @@
+{
+  "actualizado": "05/08/2026 10:45",
+  "fecha_parte_nacional": "05/08 10:30",
+  "fecha_parte_provincial": "05/08 10:30",
+  "fuente_nacional": "htm",
+  "fuente_provincial": "pdf",
+  "filas": [
+    {
+      "ruta": "RN 3",
+      "tipo": "Nacional",
+      "tramo": "Límite Chubut / Caleta Olivia",
+      "estado": "PRECAUCIÓN",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Banquina inestable. Desvío. Calzada húmeda."
+    },
+    {
+      "ruta": "RN 3",
+      "tipo": "Nacional",
+      "tramo": "Caleta Olivia / Emp. RP 43 (Fitz Roy)",
+      "estado": "PRECAUCIÓN",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Banquina inestable. Calzada húmeda. Visibilidad reducida por niebla."
+    },
+    {
+      "ruta": "RN 3",
+      "tipo": "Nacional",
+      "tramo": "Fitz Roy / Emp. RP 87 (Tres Cerros)",
+      "estado": "PRECAUCIÓN",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Banquina inestable. Calzada húmeda. Niebla."
+    },
+    {
+      "ruta": "RN 3",
+      "tipo": "Nacional",
+      "tramo": "Tres Cerros / Emp. RP 47 (El Salado)",
+      "estado": "PRECAUCIÓN",
+      "calzada": "Regular-Malo",
+      "observaciones": "Banquina inestable. Presencia de escarcha."
+    },
+    {
+      "ruta": "RN 3",
+      "tipo": "Nacional",
+      "tramo": "El Salado / Puerto San Julián",
+      "estado": "EXTREMA",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Animales sueltos. Calzada deformada. Banquina inestable. Escarcha."
+    },
+    {
+      "ruta": "RN 3",
+      "tipo": "Nacional",
+      "tramo": "Puerto San Julián / Puente Río Santa Cruz",
+      "estado": "EXTREMA",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Animales sueltos. Calzada deformada. Banquina inestable. Escarcha."
+    },
+    {
+      "ruta": "RN 40",
+      "tipo": "Nacional",
+      "tramo": "Límite Chubut / Perito Moreno",
+      "estado": "EXTREMA",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Banquinas inestables. Animales sueltos. Baches y nieve. Escarcha."
+    },
+    {
+      "ruta": "RN 40",
+      "tipo": "Nacional",
+      "tramo": "Perito Moreno / Bajo Caracoles",
+      "estado": "EXTREMA",
+      "calzada": "Regular",
+      "observaciones": "Animales sueltos. Baches y escarcha. Banquina inestable. Vientos fuertes."
+    },
+    {
+      "ruta": "RN 281",
+      "tipo": "Nacional",
+      "tramo": "Puerto Deseado / Emp. RN 3",
+      "estado": "PRECAUCIÓN",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Animales sueltos. Calzada húmeda. Banquina inestable. Escarcha."
+    },
+    {
+      "ruta": "RP 12",
+      "tipo": "Provincial",
+      "tramo": "Caleta Olivia / Cañadón Seco",
+      "estado": "PRECAUCIÓN",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Banquina inestable. Calzada húmeda. Niebla."
+    },
+    {
+      "ruta": "RP 12",
+      "tipo": "Provincial",
+      "tramo": "Cañadón Seco / Pico Truncado",
+      "estado": "PRECAUCIÓN",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Banquina inestable. Presencia de baches."
+    },
+    {
+      "ruta": "RP 12",
+      "tipo": "Provincial",
+      "tramo": "Pico Truncado / Río Graneros",
+      "estado": "PRECAUCIÓN",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Calzada con escarcha. Visibilidad reducida por niebla."
+    },
+    {
+      "ruta": "RP 43",
+      "tipo": "Provincial",
+      "tramo": "Los Antiguos / Perito Moreno",
+      "estado": "EXTREMA",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Presencia de escarcha. Banquinas inestables. Animales sueltos."
+    },
+    {
+      "ruta": "RP 43",
+      "tipo": "Provincial",
+      "tramo": "Las Heras / Koluel Kaike / Pico Truncado",
+      "estado": "PRECAUCIÓN",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Calzada con escarcha. Visibilidad reducida por niebla."
+    },
+    {
+      "ruta": "RP 41",
+      "tipo": "Provincial",
+      "tramo": "Ea. La Frontera / Paso Roballos / Lago Posadas",
+      "estado": "CORTADO",
+      "calzada": "Regular",
+      "observaciones": "Intransitable. Acumulación de nieve y barro sobre la calzada. Restricción hasta nuevo aviso."
+    },
+    {
+      "ruta": "RP 101",
+      "tipo": "Provincial",
+      "tramo": "Emp. RN 40 (Acceso Norte) / Cuevas de las Manos",
+      "estado": "CORTADO",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Intransitable. Restringida para todo tipo de vehículos."
+    },
+    {
+      "ruta": "RP 47",
+      "tipo": "Provincial",
+      "tramo": "Tellier / Emp. RN 3 (El Salado)",
+      "estado": "RESTRINGIDO",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Intransitable. Restringida para todo tipo de vehículos."
+    },
+    {
+      "ruta": "RP 49",
+      "tipo": "Provincial",
+      "tramo": "Bosques Petrificados / Emp. RP 12",
+      "estado": "RESTRINGIDO",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Intransitable. Restringida para todo tipo de vehículos."
+    }
+  ],
+  "avisos": [
+    "Eloy Echazú cuestionó el ajuste y anunció un proyecto de ley para enfrentar la crisis social",
+    "Río Gallegos firmó un acuerdo de cooperación con la Cámara de Comercio Argentino-Turca para impulsar inversiones",
+    "Santa Cruz apuesta a ser sede del Mundial de Natación en Aguas Frías 2028 en El Calafate",
+    "Pablo Grasso recorre dependencias municipales para defender los recursos de la ciudad y la autonomía municipal",
+    "IDUV realizará el sorteo público y televisado de 20 viviendas y avanza con obras estratégicas en Santa Cruz"
+  ]
+}
