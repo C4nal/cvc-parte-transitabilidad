@@ -1,0 +1,86 @@
+# ============================================================
+# CVC - Robot del parte de transitabilidad (GitHub Actions)
+# Corre solo en la nube. Baja el parte + titulares, actualiza parte.json
+# y lo publica en Netlify (requiere los secrets NETLIFY_AUTH_TOKEN y
+# NETLIFY_SITE_ID; ver Paso 4 de la guia).
+# Deja un resumen legible en la pestaña Actions (sin necesidad de email).
+# GitHub avisa automaticamente por mail si algun run FALLA.
+#
+# Este archivo va en:  .github/workflows/actualizar-parte.yml
+# ============================================================
+name: Actualizar parte de transitabilidad
+
+on:
+  schedule:
+    # Cada 2 horas (minuto 10 para esquivar la congestion de GitHub en punto).
+    # Los horarios de cron van en UTC (Argentina = UTC-3).
+    - cron: "10 */2 * * *"
+  workflow_dispatch:        # boton para correrlo a mano cuando quieras
+
+permissions:
+  contents: write           # para poder guardar parte.json en el repo
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repo
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Correr el robot (genera parte.json)
+        run: python scraper.py
+
+      - name: Guardar parte.json si cambio
+        run: |
+          git config user.name  "robot-parte"
+          git config user.email "robot-parte@users.noreply.github.com"
+          if ! git diff --quiet -- parte.json; then
+            git add parte.json
+            git commit -m "Parte actualizado automaticamente"
+            git push
+            echo "parte.json actualizado y publicado."
+          else
+            echo "Sin cambios en el parte."
+          fi
+
+      - name: Publicar en Netlify (parte.json + pagina de estado)
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          if [ -z "$NETLIFY_AUTH_TOKEN" ] || [ -z "$NETLIFY_SITE_ID" ]; then
+            echo "ERROR: faltan los secrets NETLIFY_AUTH_TOKEN y/o NETLIFY_SITE_ID."
+            echo "Cargalos en: repo -> Settings -> Secrets and variables -> Actions (Paso 4 de la guia)."
+            exit 1
+          fi
+          mkdir -p _site
+          cp parte.json _site/
+          if [ -f index.html ]; then cp index.html _site/; fi
+          if [ -f overlay.html ]; then cp overlay.html _site/; fi
+          if [ -f i24_logo_only.png ]; then cp i24_logo_only.png _site/; fi
+          # _headers habilita CORS para que el overlay (vMix) pueda leer el JSON
+          printf '/*\n  Access-Control-Allow-Origin: *\n\n/parte.json\n  Cache-Control: public, max-age=0, must-revalidate\n' > _site/_headers
+          (cd _site && zip -qr ../site.zip .)
+          curl -sSf -X POST \
+            -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" \
+            -H "Content-Type: application/zip" \
+            --data-binary @site.zip \
+            "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/deploys" -o /dev/null
+          echo "Publicado en Netlify."
+
+      - name: Mostrar resumen y diagnostico (siempre)
+        if: always()
+        run: |
+          if [ -f resumen.md ]; then
+            cat resumen.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No se genero resumen.md (el robot no llego a correr)." >> "$GITHUB_STEP_SUMMARY"
+          fi
