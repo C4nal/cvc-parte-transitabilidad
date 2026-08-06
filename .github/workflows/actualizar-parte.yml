@@ -64,6 +64,8 @@ jobs:
           mkdir -p _site
           cp parte.json _site/
           if [ -f index.html ]; then cp index.html _site/; fi
+          if [ -f overlay.html ]; then cp overlay.html _site/; fi
+          if [ -f i24_logo_only.png ]; then cp i24_logo_only.png _site/; fi
           # _headers habilita CORS para que el overlay (vMix) pueda leer el JSON
           printf '/*\n  Access-Control-Allow-Origin: *\n\n/parte.json\n  Cache-Control: public, max-age=0, must-revalidate\n' > _site/_headers
           (cd _site && zip -qr ../site.zip .)
