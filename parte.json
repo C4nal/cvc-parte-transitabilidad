@@ -1,5 +1,5 @@
 {
-  "actualizado": "06/08/2026 20:03",
+  "actualizado": "06/08/2026 20:29",
   "fecha_parte_nacional": "06/08 16:00",
   "fecha_parte_provincial": "06/08 16:00",
   "fuente_nacional": "htm",
@@ -11,127 +11,55 @@
       "tramo": "Limite Provincia de Chubut / Caleta Olivia",
       "estado": "PRECAUCION",
       "calzada": "Bueno-Regular",
-      "observaciones": "Banquina inestable Desvío. Bueno - Regular"
+      "observaciones": "Banquina inestable Desvío."
     },
     {
-      "ruta": "RN 3",
-      "tipo": "Nacional",
-      "tramo": "Caleta Olivia / Emp. R.P. Nº 43 (Fitz Roy)",
+      "ruta": "RP 12",
+      "tipo": "Provincial",
+      "tramo": "Caleta Olivia / Cañadón Seco",
       "estado": "PRECAUCION",
       "calzada": "Bueno-Regular",
-      "observaciones": "Banquina inestable Bueno - Regular"
+      "observaciones": "Banquina inestable."
     },
     {
-      "ruta": "RN 3",
-      "tipo": "Nacional",
-      "tramo": "Emp. R.P. Nº 43 (Fitz Roy) / Emp. R.P. Nº 87 (Tres Cerros)",
+      "ruta": "RP 14",
+      "tipo": "Provincial",
+      "tramo": "Emp. R.N. Nº 281 / Emp. R.P. Nº 91 (Cabo Blanco)",
+      "estado": "RESTRINGIDO",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Restringida para todo tipo de vehículos."
+    },
+    {
+      "ruta": "RP 43",
+      "tipo": "Provincial",
+      "tramo": "Los Antiguos / Perito Moreno",
+      "estado": "EXTREMA",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Animales sueltos Presencia de escarcha. Banquina inestable."
+    },
+    {
+      "ruta": "RP 81",
+      "tipo": "Provincial",
+      "tramo": "Destac. El Bello (Paso Mayer - R. Norte) / Emp. R.P. Nº 35",
       "estado": "PRECAUCION",
       "calzada": "Bueno-Regular",
-      "observaciones": "Banquina inestable Bueno - Regular"
+      "observaciones": "Animales sueltos Calzada con barro y huellones. Solo vehículos 4x4 Presencia de escarcha."
     },
     {
-      "ruta": "RN 3",
+      "ruta": "RN 281",
       "tipo": "Nacional",
-      "tramo": "Emp. R.P. Nº 87 (Tres Cerros) / Emp. R.P. Nº 47 (El Salado)",
+      "tramo": "Puerto Deseado / Emp. R.N. Nº 3",
       "estado": "PRECAUCION",
-      "calzada": "Regular-Malo",
-      "observaciones": "Banquina inestable Regular - Malo"
-    },
-    {
-      "ruta": "RN 3",
-      "tipo": "Nacional",
-      "tramo": "Emp. R.P. Nº 47 (El Salado) / Emp. R.P. Nº 25 (Puerto San Julián)",
-      "estado": "EXTREMA",
       "calzada": "Bueno-Regular",
-      "observaciones": "Animales sueltos Calzada deformada Banquina inestable Bueno - Regular Calzada con escarcha"
+      "observaciones": "Animales sueltos Banquina inestable."
     },
     {
-      "ruta": "RN 3",
-      "tipo": "Nacional",
-      "tramo": "Emp. R.P. Nº 25 (Puerto San Julián) / Puente sobre Río Santa Cruz",
-      "estado": "EXTREMA",
+      "ruta": "RP 17",
+      "tipo": "Provincial",
+      "tramo": "Emp. R.N. N° 288 / Emp. R.P. Nº 65",
+      "estado": "PRECAUCION",
       "calzada": "Bueno-Regular",
-      "observaciones": "Animales sueltos Calzada deformada Banquina inestable Bueno - Regular Calzada con escarcha"
-    },
-    {
-      "ruta": "RN 3",
-      "tipo": "Nacional",
-      "tramo": "Puente sobre Río santa Cruz / Calzada con escarcha.",
-      "estado": "EXTREMA",
-      "calzada": "Bueno-Regular",
-      "observaciones": "Banquinas Inestables / Animales sueltos. Bueno - Regular Calzada deformada"
-    },
-    {
-      "ruta": "RN 3",
-      "tipo": "Nacional",
-      "tramo": "Puente sobre Río Santa Cruz / Emp. R.P Nº 9",
-      "estado": "EXTREMA",
-      "calzada": "Bueno",
-      "observaciones": "Banquinas Inestables / Animales sueltos. Calzada con escarcha. Equipos y personal trabajando Bueno Calzada deformada"
-    },
-    {
-      "ruta": "RN 3",
-      "tipo": "Nacional",
-      "tramo": "Emp. R.P Nº 9 / Ex Antenas Telefónica (Km 2.441)",
-      "estado": "EXTREMA",
-      "calzada": "Bueno",
-      "observaciones": "Banquinas Inestables / Animales sueltos. Calzada con escarcha. Equipos y personal trabajando Bueno Calzada deformada"
-    },
-    {
-      "ruta": "RN 3",
-      "tipo": "Nacional",
-      "tramo": "Ex Antenas Telefónica (Km 2.441) / Km 2.491 ( Acc. Ea Los Álamos)",
-      "estado": "INFORMACION",
-      "calzada": "Regular",
-      "observaciones": "Sin datos. Consultar en 23º Dist. Vialidad Nacional Regular"
-    },
-    {
-      "ruta": "RN 3",
-      "tipo": "Nacional",
-      "tramo": "Km 2.491 ( Acc. Ea Los Álamos) / km 2.540 (Acc. Estancia Moy Aike Chico)",
-      "estado": "INFORMACION",
-      "calzada": "Regular",
-      "observaciones": "Sin datos. Consultar en 23º Dist. Vialidad Nacional Regular"
-    },
-    {
-      "ruta": "RN 3",
-      "tipo": "Nacional",
-      "tramo": "km 2.540 (Acc. Estancia Moy Aike Chico) / Emp. R.P Nº 5 (Guer Aike)",
-      "estado": "INFORMACION",
-      "calzada": "Bueno-Regular",
-      "observaciones": "Sin datos. Consultar en 23º Dist. Vialidad Nacional Bueno - Regular"
-    },
-    {
-      "ruta": "RN 3",
-      "tipo": "Nacional",
-      "tramo": "Emp. R.P Nº 5 (Guer Aike) / Acceso Aeropuerto Río Gallegos",
-      "estado": "INFORMACION",
-      "calzada": "Bueno-Regular",
-      "observaciones": "Sin datos. Consultar en 23º Dist. Vialidad Nacional Bueno - Regular"
-    },
-    {
-      "ruta": "RN 3",
-      "tipo": "Nacional",
-      "tramo": "Acceso Aeropuerto Río Gallegos / Chimen Aike",
-      "estado": "INFORMACION",
-      "calzada": "Bueno-Regular",
-      "observaciones": "Sin datos. Consultar en 23º Dist. Vialidad Nacional Bueno - Regular"
-    },
-    {
-      "ruta": "RN 3",
-      "tipo": "Nacional",
-      "tramo": "Chimen Aike / Acceso Reserva Laguna Azul",
-      "estado": "INFORMACION",
-      "calzada": "Bueno-Regular",
-      "observaciones": "Sin datos. Consultar en 23º Dist. Vialidad Nacional Bueno - Regular"
-    },
-    {
-      "ruta": "RN 3",
-      "tipo": "Nacional",
-      "tramo": "Acceso Reserva Laguna Azul / Paso Fronterizo Integración Austral km 2673",
-      "estado": "INFORMACION",
-      "calzada": "Bueno-Regular",
-      "observaciones": "Sin datos. Consultar en 23º Dist. Vialidad Nacional Bueno - Regular"
+      "observaciones": "Animales sueltos Calzada con barro / Acumulación de barro. Calzada con cortes y desvios."
     },
     {
       "ruta": "RN 40",
@@ -139,22 +67,99 @@
       "tramo": "Limite Provincia de Chubut / Perito Moreno (Emp. R.P Nº 43)",
       "estado": "EXTREMA",
       "calzada": "Bueno-Regular",
-      "observaciones": "Banquinas Inestables / Animales sueltos. Calzada con baches y nieve. Bueno - Regular Presencia de escarcha"
+      "observaciones": "Banquinas Inestables / Animales sueltos. Calzada con baches y nieve. Presencia de escarcha."
     },
     {
-      "ruta": "RN 40",
+      "ruta": "RN 288",
       "tipo": "Nacional",
-      "tramo": "Perito Moreno (Emp. R.P Nº 43) / Río Ecker (Casa de Piedra)",
+      "tramo": "Pto. Punta Quilla / Pto. Santa Cruz",
       "estado": "EXTREMA",
       "calzada": "Bueno-Regular",
-      "observaciones": "Banquinas Inestables / Animales sueltos. Calzada con baches y nieve. Vientos fuertes Bueno - Regular Presencia de escarcha"
+      "observaciones": "Animales sueltos Presencia de escarcha."
+    },
+    {
+      "ruta": "RP 14",
+      "tipo": "Provincial",
+      "tramo": "Emp. R.P. Nº 91 (a Cabo Blanco) / Emp. R.P. Nº 68 (Ea. La Madrugada)",
+      "estado": "RESTRINGIDO",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Restringida para todo tipo de vehículos."
+    },
+    {
+      "ruta": "RP 14",
+      "tipo": "Provincial",
+      "tramo": "Emp. R.P. Nº 68 (Ea. La Madrugada) / Mazaredo",
+      "estado": "RESTRINGIDO",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Restringida para todo tipo de vehículos."
+    },
+    {
+      "ruta": "RP 41",
+      "tipo": "Provincial",
+      "tramo": "Los Antiguos / Ea. La Frontera",
+      "estado": "CORTADO",
+      "calzada": "Regular",
+      "observaciones": "Restringida para todo tipo de vehículos Acumulación de nieve y barro sobre la calzada."
+    },
+    {
+      "ruta": "RP 41",
+      "tipo": "Provincial",
+      "tramo": "Ea. La Frontera / Paso Rodolfo Roballos (Pto. Casarini)",
+      "estado": "CORTADO",
+      "calzada": "Regular",
+      "observaciones": "Restricción hasta nuevo aviso. Acumulación de nieve y barro sobre la calzada."
+    },
+    {
+      "ruta": "RP 41",
+      "tipo": "Provincial",
+      "tramo": "Paso Rodolfo Roballos (Pto. Casarini) / Emp. R.P. Nº 103 (a Lago Ghio)",
+      "estado": "CORTADO",
+      "calzada": "Regular",
+      "observaciones": "Restricción hasta nuevo aviso. Acumulación de nieve y barro sobre la calzada."
+    },
+    {
+      "ruta": "RP 41",
+      "tipo": "Provincial",
+      "tramo": "Emp. R.P. Nº 103 (a Lago Ghio) / Emp. R.P. Nº 39 (Lago Posadas)",
+      "estado": "CORTADO",
+      "calzada": "Regular",
+      "observaciones": "Restricción hasta nuevo aviso. Acumulación de nieve y barro sobre la calzada."
+    },
+    {
+      "ruta": "RP 41",
+      "tipo": "Provincial",
+      "tramo": "Emp. R.P. Nº 39 (Lago Posadas) / Pque Nac. Perito Moreno (Destac. Onelli)",
+      "estado": "CORTADO",
+      "calzada": "Regular-Malo",
+      "observaciones": "Restringida para todo tipo de vehículos Restricción hasta nuevo aviso."
+    },
+    {
+      "ruta": "RP 47",
+      "tipo": "Provincial",
+      "tramo": "Emp. R.N. Nº 281 (Tellier) / Emp. R.P. Nº 62",
+      "estado": "RESTRINGIDO",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Restringida para todo tipo de vehículos."
+    },
+    {
+      "ruta": "RP 47",
+      "tipo": "Provincial",
+      "tramo": "Emp. R.P. Nº 62 / Emp. R.N. Nº 3 (El Salado)",
+      "estado": "RESTRINGIDO",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Restringida para todo tipo de vehículos."
     }
   ],
   "avisos": [
-    "Eloy Echazú cuestionó el ajuste y anunció un proyecto de ley para enfrentar la crisis social",
-    "Río Gallegos firmó un acuerdo de cooperación con la Cámara de Comercio Argentino-Turca para impulsar inversiones",
-    "Santa Cruz apuesta a ser sede del Mundial de Natación en Aguas Frías 2028 en El Calafate",
-    "Pablo Grasso recorre dependencias municipales para defender los recursos de la ciudad y la autonomía municipal",
-    "IDUV realizará el sorteo público y televisado de 20 viviendas y avanza con obras estratégicas en Santa Cruz"
+    "Casación confirmó el procesamiento de Julio De Vido y su esposa por enriquecimiento ilícito",
+    "El Municipio de Rio Gallegos y Vialidad Nacional logran consenso para avanzan en un plan de trabajo conjunto",
+    "ANMAT prohíbe dos lotes de medicamentos desinflamantes de la firma Gramon Millet S.A.",
+    "Desbaratan una organización dedicada al tráfico de drogas sintéticas entre Chubut y Buenos Aires",
+    "Presentaron el nuevo Sistema de Guía de Tránsito Electrónica",
+    "Educación: Entrega de libros en escuelas primarias con una nueva jornada en el Colegio Salesiano",
+    "6 de agosto: Día de la Enseñanza Agropecuaria",
+    "Emergencia en alta mar: rescataron a un tripulante a casi 200 kilómetros de la costa de Bahía Blanca",
+    "La Corte Suprema aprobó su presupuesto 2027 y reclamó al Gobierno mayores recursos",
+    "Condenaron en Estados Unidos al empresario que financió la campaña presidencial de José Luis Espert en 2019"
   ]
 }
