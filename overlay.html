@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1920,height=1080,initial-scale=1" />
+<title>CVC - Overlay TV - Clima + Mareas + Rutas (vMix, optimizado)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Carga de fuentes no bloqueante: la pantalla aparece al instante con la
+     fuente de reemplazo y Barlow/IBM Plex Mono se aplican cuando terminan de cargar. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
+<style>
+  /* ============================================================
+     CVC — Overlay TV combinado (Clima + Mareas + Rutas)
+     Optimizado para vMix / GPU:
+     - Sin React / Babel / bundler / iframes: un único documento liviano.
+     - Sin backdrop-filter (blur) en ningún panel: los fondos ya son
+       prácticamente opacos, así que el blur no cambiaba el resultado
+       visual y sólo consumía GPU en cada frame.
+     - Sin transiciones de opacidad "fade" entre pantallas ni al rotar
+       filas: los cambios de contenido son CORTES instantáneos (display).
+     - Sólo quedan animaciones de transform/opacity (compuestas por GPU
+       a costo casi nulo). Se eliminaron animaciones de filter/box-shadow/
+       text-shadow que forzaban repintado en cada cuadro.
+     - Iconos de clima: la animación interna (rayos, gotas, copos) sólo
+       corre en el ícono principal; los 3 íconos del pronóstico quedan
+       estáticos para no multiplicar capas animadas.
+     Lienzo: 1920x1080 (16:9, formato TV). vMix: fuente Web Browser,
+     25 fps.
+     ============================================================ */
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: transparent;
+    font-family: 'Barlow', Arial, sans-serif;
+  }
+  :root {
+    --bg: #0a1330;
+    --line: rgba(255,255,255,.08);
+    --panel: rgba(255,255,255,.045);
+    --muted: #8a9bc4;
+    --soft: #cdd8ef;
+    --blue: #1E5BFF;
+    --sky: #35b6ff;
+    --cyan: #35b6ff;
+    --pink: #FF2E9A;
+    --orange: #FF9422;
+    --green: #37e27f;
+    --yellow: #ffd34d;
+    --red: #ff4b5f;
+    --overlay-height: 212px;
+    --weather-width: 232px;
+  }
+
+  /* ------------------------------------------------------------
+     EDICIÓN RÁPIDA — RUTAS
+     1) Editá rutas/tramos/estados/avisos en CONFIG_PARTE (más abajo,
+        dentro del bloque de JavaScript).
+     2) Para agregar una fila copiá un bloque { ... } dentro de filas.
+     3) Estados sugeridos: NORMAL, PRECAUCIÓN, EXTREMA, RESTRINGIDO,
+        CORTADO, INFORMACIÓN.
+     4) Duraciones de pantalla: DURACION_MAREAS_SEG / DURACION_RUTAS_SEG.
+     ------------------------------------------------------------ */
+
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes obsScroll {
+    0%, 12% { transform: translateX(0); }
+    88%, 100% { transform: translateX(calc(-50% - 32px)); }
+  }
+  @keyframes tidePulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+  @keyframes i24Appear { 0% { opacity: 0; transform: scale(.82); } 14% { opacity: 1; transform: scale(1); } 72% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.08); } }
+  @keyframes scanSweep { from { transform: translateX(-140%); } to { transform: translateX(140%); } }
+  @keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  @keyframes iconHeartbeat { 0%, 100% { transform: scale(1); } 22% { transform: scale(1.06); } 42% { transform: scale(.98); } 62% { transform: scale(1.035); } }
+  @keyframes iconTwinkle { 0%, 100% { opacity: .45; transform: scale(.92); } 50% { opacity: 1; transform: scale(1.07); } }
+  @keyframes cloudBreathe { 0%, 100% { transform: translateX(0); opacity: .92; } 50% { transform: translateX(1.5px); opacity: 1; } }
+  @keyframes rainDrop { 0% { transform: translateY(-7px); opacity: 0; } 18% { opacity: 1; } 78% { opacity: 1; } 100% { transform: translateY(7px); opacity: 0; } }
+  @keyframes snowFall { 0% { transform: translateY(-5px) rotate(0deg); opacity: .35; } 50% { opacity: 1; } 100% { transform: translateY(5px) rotate(25deg); opacity: .35; } }
+  @keyframes fogSlide { 0%, 100% { transform: translateX(-2px); opacity: .45; } 50% { transform: translateX(2px); opacity: .85; } }
+  @keyframes boltFlash { 0%, 78%, 100% { opacity: .72; } 84% { opacity: 1; } }
+
+  .stage { position: relative; width: 1920px; height: 1080px; background: transparent; }
+
+  /* ================= CLIMA (columna vertical izquierda) ================= */
+  .weather-card {
+    position: absolute; top: 0; left: 0; bottom: var(--overlay-height);
+    width: var(--weather-width);
+    background: var(--bg);
+    box-shadow: 18px 0 40px rgba(0,0,0,.4);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .top-bars { height: 6px; display: flex; flex-shrink: 0; }
+  .top-bars div:nth-child(1) { flex: 2; background: var(--blue); }
+  .top-bars div:nth-child(2) { flex: 1; background: var(--pink); }
+  .top-bars div:nth-child(3) { flex: 1; background: var(--orange); }
+  .w-current {
+    padding: 36px 16px 26px;
+    display: grid; grid-template-columns: 92px minmax(0, 1fr); grid-template-rows: 96px auto;
+    align-items: center; column-gap: 10px; row-gap: 10px;
+    border-bottom: 1px solid var(--line); flex-shrink: 0; text-align: center;
+  }
+  .w-icon-main { width: 92px; height: 92px; animation: floaty 5s ease-in-out infinite; display: flex; align-items: center; justify-content: center; justify-self: center; }
+  .w-icon-main svg { width: 92px; height: 92px; display: block; overflow: visible; filter: drop-shadow(0 0 10px rgba(53,182,255,.2)); }
+  .w-temp { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 94px; color: #fff; line-height: .9; letter-spacing: -1px; display: flex; align-items: flex-start; width: 100%; transform: translateY(2px); }
+  .w-temp .deg { font-size: 40px; color: var(--muted); margin-left: 1px; transform: translateY(3px); }
+  .w-desc { grid-column: 1 / -1; font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 18px; color: var(--soft); line-height: 1.15; text-align: center; max-width: 210px; max-height: 42px; overflow: hidden; margin: 0 auto; }
+  .w-stats { padding: 22px 16px; display: flex; flex-direction: column; gap: 16px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  .w-stat { background: var(--panel); padding: 11px; border-left: 3px solid var(--accent); display: grid; grid-template-columns: minmax(70px,1fr) auto; align-items: center; gap: 7px; min-height: 60px; }
+  .w-stat-label { font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 13px; color: var(--accent); letter-spacing: 1.35px; white-space: nowrap; }
+  .w-stat-value { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; color: #fff; line-height: 1; text-align: right; justify-self: end; white-space: nowrap; }
+  .w-stat-value.wind { font-size: 28px; }
+  .w-stat-value small { font-size: 13px; color: var(--muted); font-family: 'Barlow', sans-serif; font-weight: 600; }
+  .w-forecast { padding: 26px 16px 28px; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .w-forecast-title { font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 14px; color: var(--muted); letter-spacing: 2px; margin-bottom: 18px; flex-shrink: 0; }
+  .w-forecast-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+  .w-day { height: 100%; background: var(--panel); padding: 18px 4px 16px; display: grid; grid-template-rows: auto 1fr auto auto; place-items: center; row-gap: 12px; text-align: center; }
+  .w-day-label { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 16px; color: var(--soft); letter-spacing: 1px; line-height: 1; }
+  .w-day-icon { width: 62px; height: 62px; display: flex; align-items: center; justify-content: center; }
+  .w-day-icon svg { width: 58px; height: 58px; display: block; overflow: visible; }
+  .w-day-icon .ray, .w-day-icon .drop, .w-day-icon .snow, .w-day-icon .fog-line, .w-day-icon .bolt, .w-day-icon .cloud-shape, .w-day-icon .sun-core, .w-day-icon .moon-core { animation: none !important; }
+  .w-day-max { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 27px; color: #fff; line-height: 1; width: 100%; text-align: center; }
+  .w-day-min { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 21px; color: var(--muted); line-height: 1; width: 100%; text-align: center; }
+  .w-error { color: #ff8a80 !important; }
+
+  .weather-svg * { transform-box: fill-box; transform-origin: center; }
+  .w-icon-main .sun-core, .w-icon-main .moon-core { animation: iconHeartbeat 3.8s ease-in-out infinite; }
+  .w-icon-main .ray { animation: iconTwinkle 2.6s ease-in-out infinite; }
+  .w-icon-main .ray:nth-child(2n) { animation-delay: .55s; }
+  .w-icon-main .cloud-shape { animation: cloudBreathe 5.2s ease-in-out infinite; }
+  .w-icon-main .drop { animation: rainDrop 1.55s linear infinite; }
+  .w-icon-main .drop:nth-child(2) { animation-delay: .25s; }
+  .w-icon-main .drop:nth-child(3) { animation-delay: .5s; }
+  .w-icon-main .snow { animation: snowFall 2.4s ease-in-out infinite; }
+  .w-icon-main .snow:nth-child(2) { animation-delay: .35s; }
+  .w-icon-main .snow:nth-child(3) { animation-delay: .7s; }
+  .w-icon-main .bolt { animation: boltFlash 2.2s ease-in-out infinite; }
+  .w-icon-main .fog-line { animation: fogSlide 3.5s ease-in-out infinite; }
+  .w-icon-main .fog-line:nth-child(2) { animation-delay: .7s; }
+  /* Balance óptico por tipo de ícono */
+  .w-icon-main .weather-sun { transform: scale(.84); }
+  .w-icon-main .weather-moon { transform: scale(.92); }
+  .w-icon-main .weather-partly { transform: scale(.96) translateY(1px); }
+  .w-icon-main .weather-cloud { transform: scale(.92); }
+  .w-icon-main .weather-rain { transform: scale(.94) translateY(-1px); }
+  .w-icon-main .weather-snow { transform: scale(.94) translateY(-1px); }
+  .w-icon-main .weather-storm { transform: scale(.92) translateY(-2px); }
+  .w-icon-main .weather-fog { transform: scale(.94) translateY(-1px); }
+  .w-day-icon .weather-sun { transform: scale(.82); }
+  .w-day-icon .weather-moon { transform: scale(.86); }
+  .w-day-icon .weather-partly { transform: scale(.91) translateY(1px); }
+  .w-day-icon .weather-cloud { transform: scale(.88); }
+  .w-day-icon .weather-rain { transform: scale(.90) translateY(-1px); }
+  .w-day-icon .weather-snow { transform: scale(.90) translateY(-1px); }
+  .w-day-icon .weather-storm { transform: scale(.88) translateY(-2px); }
+  .w-day-icon .weather-fog { transform: scale(.90) translateY(-1px); }
+
+  /* ================= BARRA INFERIOR: MAREAS / RUTAS (corte, sin fade) ================= */
+  .bottom-bar { position: absolute; left: 0; right: 0; bottom: 0; height: var(--overlay-height); }
+  .color-strip { height: 8px; display: flex; }
+  .color-strip div:nth-child(1) { flex: 2; background: var(--blue); }
+  .color-strip div:nth-child(2) { flex: 1; background: var(--pink); }
+  .color-strip div:nth-child(3) { flex: 1; background: var(--orange); }
+
+  .face { position: absolute; left: 0; right: 0; top: 8px; bottom: 0; display: none; }
+  .face.active { display: block; }
+
+  /* --- Cara Mareas --- */
+  .mareas-body { height: 100%; background: #0a1330; padding: 34px 44px; display: flex; align-items: center; gap: 34px; }
+  .m-brand { display: flex; flex-direction: column; gap: 3px; min-width: 280px; }
+  .m-brand .t1 { font-family: 'Barlow Condensed'; font-weight: 700; font-size: 52px; color: #fff; letter-spacing: 1px; line-height: 1; }
+  .m-brand .t2 { font-family: 'Barlow'; font-weight: 600; font-size: 26px; color: #7f93c9; letter-spacing: 3px; }
+  .m-brand .t3 { font-family: 'IBM Plex Mono'; font-size: 20px; color: #4f5f8a; margin-top: 6px; }
+  .m-sep { width: 2px; height: 104px; background: #ffffff1f; }
+  .m-estado { display: flex; align-items: center; gap: 20px; min-width: 300px; }
+  .m-estado .arrow { font-size: 80px; line-height: 1; animation: tidePulse 2.4s infinite; }
+  .m-estado .label { font-family: 'Barlow'; font-weight: 600; font-size: 22px; color: #8a9bc4; letter-spacing: 4px; }
+  .m-estado .val { font-family: 'Barlow Condensed'; font-weight: 700; font-size: 60px; line-height: 1; }
+  .m-altura { min-width: 230px; }
+  .m-altura .label { font-family: 'Barlow'; font-weight: 600; font-size: 22px; color: #8a9bc4; letter-spacing: 4px; }
+  .m-altura .val { font-family: 'Barlow Condensed'; font-weight: 700; font-size: 68px; color: #fff; line-height: 1; }
+  .m-altura .val span { font-size: 36px; color: #8a9bc4; }
+  .m-tides { display: flex; gap: 34px; }
+  .m-tides .label { font-family: 'Barlow'; font-weight: 600; font-size: 22px; letter-spacing: 3px; }
+  .m-tides .val { font-family: 'Barlow Condensed'; font-weight: 700; font-size: 60px; color: #fff; line-height: 1; }
+  .m-curve { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .m-curve svg-wrap { width: 300px; height: 110px; }
+  .m-curve .cap { font-family: 'IBM Plex Mono'; font-size: 16px; color: #4f5f8a; letter-spacing: .5px; }
+
+  /* --- Cara Rutas --- */
+  .rutas-body { position: relative; height: 100%; background: #0a1330; border-top: 1px solid rgba(255,255,255,.12); padding: 12px 34px 10px; overflow: hidden; }
+  .rutas-body::before { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,.045) 45%, transparent 58%); animation: scanSweep 9s linear infinite; pointer-events: none; }
+  .rutas-content { position: relative; z-index: 2; height: 100%; display: grid; grid-template-columns: 205px 1fr; grid-template-rows: 1fr 58px; gap: 7px 16px; }
+  .side-brand { grid-row: 1/2; display: flex; flex-direction: column; justify-content: center; padding: 0 4px 0 6px; position: relative; }
+  .side-brand::after { content: ''; position: absolute; right: -8px; top: 10px; bottom: 10px; width: 1px; background: linear-gradient(180deg, transparent, rgba(53,182,255,.72), rgba(255,46,154,.48), transparent); }
+  .side-brand .line { font-family: 'Barlow Condensed'; font-size: 49px; line-height: .88; font-weight: 900; letter-spacing: 1.4px; color: #fff; text-transform: uppercase; text-shadow: 0 0 18px rgba(53,182,255,.22), 0 0 14px rgba(255,46,154,.13); }
+  .side-brand .line:nth-child(2) { margin-top: 5px; font-size: 44px; color: #dce8ff; }
+  .table-wrap { grid-column: 2/3; grid-row: 1/2; min-width: 0; border: 1px solid rgba(255,255,255,.11); border-radius: 17px; overflow: hidden; }
+  table { width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; }
+  thead tr { background: rgba(30,91,255,.22); }
+  th { height: 28px; font-size: 15px; color: #8ea2d7; text-transform: uppercase; letter-spacing: 1.8px; font-weight: 800; text-align: left; padding: 0 12px; border-right: 1px solid rgba(255,255,255,.08); }
+  th:last-child { border-right: 0; }
+  td { height: 27px; font-size: 20px; color: #fff; padding: 0 12px; border-top: 1px solid rgba(255,255,255,.085); border-right: 1px solid rgba(255,255,255,.06); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; vertical-align: middle; }
+  td:last-child { border-right: 0; }
+  tbody tr:nth-child(even) { background: rgba(255,255,255,.035); }
+  tbody tr.alert { background: rgba(255,75,95,.14); }
+  tbody tr.extreme { background: rgba(255,75,95,.09); }
+  tbody tr.caution { background: rgba(255,148,34,.11); }
+  .route { font-family: 'Barlow Condensed'; font-weight: 900; font-size: 28px; letter-spacing: .5px; }
+  .type { color: #c5d0f4; font-size: 18px; }
+  .surface { color: #e7edff; }
+  .obs { color: #b7c4ef; font-size: 18px; padding: 0; }
+  .obs-viewport { width: 100%; height: 27px; display: flex; align-items: center; overflow: hidden; padding: 0 12px; position: relative; }
+  .obs-viewport::before, .obs-viewport::after { content: ''; position: absolute; top: 0; bottom: 0; width: 22px; z-index: 2; pointer-events: none; }
+  .obs-viewport::before { left: 0; background: linear-gradient(90deg, rgba(10,19,48,.92), transparent); }
+  .obs-viewport::after { right: 0; background: linear-gradient(270deg, rgba(10,19,48,.92), transparent); }
+  .obs-track { display: inline-flex; align-items: center; min-width: max-content; white-space: nowrap; }
+  .obs-track span { padding-right: 64px; }
+  .obs-scroll .obs-track { animation: obsScroll 26s ease-in-out infinite; }
+  .chip { display: inline-flex; align-items: center; justify-content: center; height: 23px; min-width: 112px; padding: 0 10px; border-radius: 999px; font-size: 15px; font-weight: 900; letter-spacing: 1.1px; text-transform: uppercase; color: #061026; }
+  .chip.ok { background: var(--green); }
+  .chip.precaucion { background: var(--yellow); color: #1e1a02; }
+  .chip.extrema { background: var(--orange); color: #170b00; }
+  .chip.restringido { background: var(--orange); color: #170b00; }
+  .chip.cortado { background: var(--red); color: #fff; }
+  .chip.info { background: var(--sky); }
+  .bottom-ticker { grid-column: 1/3; grid-row: 2/3; height: 44px; display: flex; align-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.11); border-radius: 10px; background: rgba(4,10,29,.55); position: relative; }
+  .ticker-label { flex: 0 0 112px; height: 100%; display: grid; place-items: center; background: rgba(10,10,10,.86); border-right: 1px solid rgba(255,255,255,.13); }
+  .ticker-logo { display: block; width: 92px; height: 38px; object-fit: contain; filter: drop-shadow(0 0 6px rgba(255,148,34,.32)); animation: i24Appear 3.4s ease-in-out infinite; }
+  .ticker-viewport { flex: 1 1 auto; min-width: 0; height: 100%; overflow: hidden; padding-left: 18px; display: flex; align-items: center; }
+  .ticker-track { display: flex; min-width: 200%; height: 24px; align-items: center; animation: ticker 42s linear infinite; font-family: 'IBM Plex Mono', monospace; font-size: 19px; line-height: 24px; color: #a9b9ed; white-space: nowrap; }
+  .ticker-track span { padding-right: 78px; }
+</style>
+</head>
+<body>
+<script>
+/* ============================================================
+   FUENTE DEL PARTE (automatico)
+   PARTE_URL = direccion del parte.json que el robot publica en Netlify.
+   >>> Reemplazar TU-SITIO por el nombre de tu sitio de Netlify (Paso 4 de la guia). <<<
+   La grafica baja este archivo al iniciar y cada REFRESH_PARTE_MIN minutos.
+   Si falla (sin internet, etc.) usa los datos de respaldo de CONFIG_PARTE
+   de abajo y NUNCA queda en blanco al aire.
+   ============================================================ */
+const PARTE_URL = "parte.json"; // mismo sitio (Netlify): sin CORS. Si usas el archivo local, pone la URL completa.
+const REFRESH_PARTE_MIN = 120; // cada 2 horas (igual que el robot)
+
+const CONFIG_PARTE = {
+  // Datos de RESPALDO (fallback). El robot los reemplaza al vuelo con parte.json.
+  // Datos del parte de transitabilidad AGVP / Vialidad Nacional.
+  // Fuente: https://www.agvp.gob.ar/servicios/parte-de-transitabilidad/
+  // Verificado viernes 17/07/2026. Parte consultado (último publicado por AGVP):
+  // rutas nacionales jueves 16/07/2026 - 00:30 hs.;
+  // rutas provinciales lunes 13/07/2026 - 21:00 hs.
+  // Editá, agregá o borrá filas sin tocar el diseño.
+  filas: [
+    { ruta: 'RN 3', tipo: 'Nacional', tramo: 'Límite Chubut / Caleta Olivia', estado: 'PRECAUCIÓN', calzada: 'Bueno-Regular', observaciones: 'Habilitada. Banquina inestable, desvío y vientos moderados.' },
+    { ruta: 'RN 3', tipo: 'Nacional', tramo: 'Caleta Olivia / Empalme RP 43 (Fitz Roy)', estado: 'PRECAUCIÓN', calzada: 'Bueno-Regular', observaciones: 'Habilitada. Banquina inestable, calzada húmeda y vientos moderados.' },
+    { ruta: 'RN 3', tipo: 'Nacional', tramo: 'Empalme RP 43 / Empalme RP 47 (El Salado)', estado: 'PRECAUCIÓN', calzada: 'Bueno-Regular', observaciones: 'Habilitada. Banquinas inestables y animales sueltos.' },
+    { ruta: 'RN 3', tipo: 'Nacional', tramo: 'El Salado / Puerto San Julián', estado: 'EXTREMA', calzada: 'Bueno-Regular', observaciones: 'Habilitada. Banquinas inestables, animales sueltos, calzada deformada y con escarcha. Portación obligatoria de cadenas.' },
+    { ruta: 'RN 3', tipo: 'Nacional', tramo: 'Puerto San Julián / Puente Río Santa Cruz', estado: 'EXTREMA', calzada: 'Bueno-Regular', observaciones: 'Habilitada. Banquinas inestables, animales sueltos, calzada deformada y con escarcha. Niebla y portación obligatoria de cadenas.' },
+    { ruta: 'RN 40', tipo: 'Nacional', tramo: 'Límite Chubut / Perito Moreno', estado: 'EXTREMA', calzada: 'Bueno-Regular', observaciones: 'Habilitada. Calzada deformada y con escarcha, banquinas inestables, animales sueltos y visibilidad reducida por voladeros.' },
+    { ruta: 'RN 40', tipo: 'Nacional', tramo: 'Perito Moreno / Bajo Caracoles', estado: 'EXTREMA', calzada: 'Regular', observaciones: 'Habilitada. Baches y escarcha, banquinas inestables, animales sueltos y visibilidad reducida por nieve.' },
+    { ruta: 'RP 1', tipo: 'Provincial', tramo: 'RN 3 / Ea. El Cóndor / Cabo Vírgenes', estado: 'PRECAUCIÓN', calzada: 'Regular', observaciones: 'Habilitada. Barro, escarcha y huellones en sectores de ripio.' },
+    { ruta: 'RP 2', tipo: 'Provincial', tramo: 'Fortaleza / Camusu Aike', estado: 'PRECAUCIÓN', calzada: 'Bueno-Regular', observaciones: 'Habilitada. Animales sueltos, barro y huellones.' },
+    { ruta: 'RP 2', tipo: 'Provincial', tramo: 'Camusu Aike / RN 40 (La Esperanza)', estado: 'EXTREMA', calzada: 'Bueno-Regular', observaciones: 'Habilitada. Extrema precaución por animales sueltos, barro y huellones.' },
+    { ruta: 'RP 5', tipo: 'Provincial', tramo: 'La Esperanza / Paso Internacional Mina Uno', estado: 'PRECAUCIÓN', calzada: 'Bueno-Regular', observaciones: 'Habilitada. Baches, escarcha y equipos y personal trabajando.' },
+    { ruta: 'RP 12', tipo: 'Provincial', tramo: 'Pico Truncado / Río Graneros', estado: 'PRECAUCIÓN', calzada: 'Bueno-Regular', observaciones: 'Habilitada. Calzada con hielo y nieve.' },
+    { ruta: 'RP 12', tipo: 'Provincial', tramo: 'Río Graneros / Ex Destacamento Las Sierras', estado: 'PRECAUCIÓN', calzada: 'Bueno-Regular', observaciones: 'Habilitada. Calzada con hielo y nieve.' },
+    { ruta: 'RP 12', tipo: 'Provincial', tramo: 'Gobernador Moyano / Los Manantiales', estado: 'RESTRINGIDO', calzada: 'Bueno-Regular', observaciones: 'Habilitada con precaución. Animales sueltos, barro y huellones; sólo vehículos 4x4.' },
+    { ruta: 'RP 21', tipo: 'Provincial', tramo: 'RP 17 / RN 40 (La Leona)', estado: 'EXTREMA', calzada: 'Regular', observaciones: 'Habilitada. Barro, huellones, nieve y animales sueltos; sólo vehículos 4x4.' },
+    { ruta: 'RP 25', tipo: 'Provincial', tramo: 'Puerto San Julián / Empalme RP 77', estado: 'RESTRINGIDO', calzada: 'Regular', observaciones: 'Habilitada con precaución. Animales sueltos y escarcha; sólo vehículos 4x4.' }
+  ],
+  avisos: [
+    'Eloy Echazú cuestionó el ajuste y anunció un proyecto de ley para enfrentar la crisis social',
+    'Río Gallegos firmó un acuerdo de cooperación con la Cámara de Comercio Argentino-Turca',
+    'Santa Cruz apuesta a ser sede del Mundial de Natación en Aguas Frías 2028 en El Calafate'
+  ]
+};
+
+const DURACION_MAREAS_SEG = 13;
+const DURACION_RUTAS_SEG = 300; // minimo 5 minutos; si un ciclo completo de paginas tarda mas, se extiende solo
+const FILAS_VISIBLES = 2;
+const SEGUNDOS_ROTACION_FILAS = 10;
+</script>
+
+<div class="stage" id="stage">
+
+  <!-- ================= CLIMA ================= -->
+  <aside class="weather-card">
+    <div class="top-bars"><div></div><div></div><div></div></div>
+    <section class="w-current">
+      <div class="w-icon-main" id="iconMain" aria-hidden="true"></div>
+      <div class="w-temp"><span id="tempTxt">—</span><span class="deg">°</span></div>
+      <div class="w-desc" id="descTxt">Cargando…</div>
+    </section>
+    <section class="w-stats">
+      <div class="w-stat" style="--accent: var(--orange)"><span class="w-stat-label">SENSACIÓN</span><span class="w-stat-value"><span id="feelsTxt">—</span>°</span></div>
+      <div class="w-stat" style="--accent: var(--cyan)"><span class="w-stat-label">HUMEDAD</span><span class="w-stat-value"><span id="humTxt">—</span>%</span></div>
+      <div class="w-stat" style="--accent: #6f9bff"><span class="w-stat-label">VIENTO</span><span class="w-stat-value wind"><span id="windTxt">—</span> <small>km/h <span id="windDir"></span></small></span></div>
+      <div class="w-stat" style="--accent: var(--pink)"><span class="w-stat-label">MÁX / MÍN</span><span class="w-stat-value"><span id="maxTxt">—</span>°/<span id="minTxt">—</span>°</span></div>
+    </section>
+    <section class="w-forecast">
+      <div class="w-forecast-title">PRÓXIMOS DÍAS</div>
+      <div class="w-forecast-grid" id="forecastGrid"></div>
+    </section>
+  </aside>
+
+  <!-- ================= MAREAS + RUTAS (barra inferior, corte sin fade) ================= -->
+  <div class="bottom-bar">
+    <div class="color-strip"><div></div><div></div><div></div></div>
+
+    <section class="face face-mareas active" aria-label="Mareas Caleta Olivia">
+      <div class="mareas-body">
+        <div class="m-brand">
+          <div class="t1">MAREAS</div>
+          <div class="t2">CALETA OLIVIA</div>
+          <div class="t3"><span id="mFecha">—</span> · <span id="mHoraAct">--:--</span></div>
+        </div>
+        <div class="m-sep"></div>
+        <div class="m-estado">
+          <div class="arrow" id="mFlecha" style="color:#8a9bc4">~</div>
+          <div>
+            <div class="label">ESTADO</div>
+            <div class="val" id="mEstadoTxt" style="color:#8a9bc4">CARGANDO</div>
+          </div>
+        </div>
+        <div class="m-sep"></div>
+        <div class="m-altura">
+          <div class="label">ALTURA</div>
+          <div class="val"><span id="mAlturaTxt">—</span> <span>m</span></div>
+        </div>
+        <div class="m-sep"></div>
+        <div class="m-tides">
+          <div>
+            <div class="label" style="color:#FF2E9A">▲ PLEAMAR</div>
+            <div class="val" id="mPleamarTxt">--:--</div>
+          </div>
+          <div>
+            <div class="label" style="color:#35b6ff">▼ BAJAMAR</div>
+            <div class="val" id="mBajamarTxt">--:--</div>
+          </div>
+        </div>
+        <div class="m-curve">
+          <div class="svg-wrap" style="width:300px;height:110px;">
+            <svg viewBox="0 0 200 60" preserveAspectRatio="none" style="width:100%;height:100%;overflow:visible;">
+              <polyline id="mCurvePts" points="" fill="none" stroke="#1E5BFF" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></polyline>
+              <circle id="mMarker" cx="100" cy="30" r="4.5" fill="#FF9422" stroke="#0a1330" stroke-width="2"></circle>
+            </svg>
+          </div>
+          <div class="cap">curva 24 h · marea en vivo</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="face face-rutas" aria-label="Informe de rutas">
+      <div class="rutas-body">
+        <div class="rutas-content">
+          <div class="side-brand">
+            <div class="line">INFORME</div>
+            <div class="line">DE RUTAS</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:9%">Ruta</th>
+                  <th style="width:9%">Tipo</th>
+                  <th style="width:25%">Tramo / sector</th>
+                  <th style="width:14%">Estado</th>
+                  <th style="width:11%">Calzada</th>
+                  <th style="width:32%">Observaciones</th>
+                </tr>
+              </thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+          <div class="bottom-ticker">
+            <div class="ticker-label"><img class="ticker-logo" src="i24_logo_only.png" alt="i24"></div>
+            <div class="ticker-viewport"><div class="ticker-track" id="tickerTrack"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+/* ================= CLIMA: lógica ================= */
+(function(){
+  const WMO_DESC = {
+    0: 'Despejado', 1: 'Mayormente despejado', 2: 'Parcialmente nublado', 3: 'Nublado',
+    45: 'Niebla', 48: 'Niebla con escarcha',
+    51: 'Llovizna leve', 53: 'Llovizna', 55: 'Llovizna intensa',
+    56: 'Llovizna helada', 57: 'Llovizna helada intensa',
+    61: 'Lluvia leve', 63: 'Lluvia', 65: 'Lluvia intensa',
+    66: 'Lluvia helada', 67: 'Lluvia helada intensa',
+    71: 'Nevada leve', 73: 'Nevada', 75: 'Nevada intensa', 77: 'Granizo blando',
+    80: 'Chaparrones leves', 81: 'Chaparrones', 82: 'Chaparrones intensos',
+    85: 'Nevadas leves', 86: 'Nevadas intensas', 95: 'Tormenta', 96: 'Tormenta con granizo', 99: 'Tormenta fuerte'
+  };
+  function weatherSvg(type, color) {
+    const stroke = color || '#a9bbe0';
+    const common = `fill="none" stroke="${stroke}" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"`;
+    const rays = ['M50 10v8','M50 82v8','M10 50h8','M82 50h8','M22 22l6 6','M72 72l6 6','M78 22l-6 6','M28 72l-6 6']
+      .map((d,i)=>`<path class="ray" style="animation-delay:${i*.12}s" d="${d}"/>`).join('');
+    const sun = `<circle class="sun-core" cx="50" cy="50" r="17" fill="${stroke}" opacity=".96"/><g ${common} opacity=".82">${rays}</g>`;
+    const moon = `<path class="moon-core" d="M61 16c-10 5-17 16-17 28 0 17 14 31 31 31 4 0 8-.7 11-2C80 82 69 88 56 88 35 88 18 71 18 50c0-17 11-31 27-37 5-2 11-1 16 3z" fill="${stroke}" opacity=".95"/>`;
+    const cloudShape = `<path class="cloud-shape" d="M28 66h42c10 0 17-7 17-16 0-10-7-17-17-17-3 0-6 .6-8 1.8C58 25 49 18 38 18c-14 0-25 11-25 25 0 2 .2 4 .6 5.7C8 52 5 58 5 64c0 9 7 16 16 16h48" fill="rgba(255,255,255,.10)" stroke="${stroke}" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    const cloud = `<g transform="translate(4 2) scale(.9)">${cloudShape}</g>`;
+    const partly = `<g transform="translate(2 2) scale(.58)">${sun}</g><g transform="translate(20 21) scale(.68)">${cloudShape}</g>`;
+    const drops = `<g ${common}><path class="drop" d="M34 73l-5 11"/><path class="drop" d="M51 73l-5 11"/><path class="drop" d="M68 73l-5 11"/></g>`;
+    const rain = `<g transform="translate(10 6) scale(.78)">${cloudShape}</g>${drops}`;
+    const flakes = `<g ${common}><g class="snow"><path d="M34 78v8M30 82h8M31.5 79.5l5 5M36.5 79.5l-5 5"/></g><g class="snow"><path d="M52 78v8M48 82h8M49.5 79.5l5 5M54.5 79.5l-5 5"/></g><g class="snow"><path d="M70 78v8M66 82h8M67.5 79.5l5 5M72.5 79.5l-5 5"/></g></g>`;
+    const snow = `<g transform="translate(10 6) scale(.78)">${cloudShape}</g>${flakes}`;
+    const storm = `<g transform="translate(10 4) scale(.78)">${cloudShape}</g><path class="bolt" d="M51 61 42 82h13l-5 13 18-27H55l6-7z" fill="${stroke}"/>`;
+    const fog = `<g transform="translate(10 0) scale(.78)">${cloudShape}</g><g ${common} opacity=".82"><path class="fog-line" d="M20 75h60"/><path class="fog-line" d="M28 87h44"/></g>`;
+    const overcast = `<g transform="translate(8 10) scale(.82)">${cloudShape}</g>`;
+    const map = {sun, moon, partly, cloud: overcast, rain, snow, storm, fog};
+    return `<svg class="weather-svg weather-${type}" viewBox="-8 -8 116 116" role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">${map[type] || overcast}</svg>`;
+  }
+  function wmoIcon(code, isDay) {
+    let type = 'cloud';
+    if (code === 0) type = isDay ? 'sun' : 'moon';
+    else if (code === 1 || code === 2) type = isDay ? 'partly' : 'cloud';
+    else if (code === 45 || code === 48) type = 'fog';
+    else if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) type = 'rain';
+    else if ((code >= 71 && code <= 77) || code === 85 || code === 86) type = 'snow';
+    else if (code >= 95) type = 'storm';
+    return weatherSvg(type, wmoColor(code));
+  }
+  function wmoColor(code) {
+    if (code === 0 || code === 1) return '#FF9422';
+    if (code === 2) return '#ffd27a';
+    if (code >= 95) return '#FF2E9A';
+    if (code >= 71 && code <= 86) return '#dbeeff';
+    if (code >= 51) return '#35b6ff';
+    return '#a9bbe0';
+  }
+  function compass(deg) {
+    const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
+    return dirs[Math.round(deg / 22.5) % 16];
+  }
+  function setText(id, value) { document.getElementById(id).textContent = value; }
+  async function loadWeather() {
+    try {
+      const lat = -46.4372, lon = -67.53;
+      const tz = 'America/Argentina/Rio_Gallegos';
+      const url = new URL('https://api.open-meteo.com/v1/forecast');
+      url.search = new URLSearchParams({
+        latitude: lat, longitude: lon,
+        current: 'temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,wind_speed_10m,wind_direction_10m',
+        daily: 'weather_code,temperature_2m_max,temperature_2m_min',
+        timezone: tz, forecast_days: '4', wind_speed_unit: 'kmh'
+      }).toString();
+      const r = await fetch(url.toString(), { cache: 'no-store' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const j = await r.json();
+      const c = j.current || {};
+      const dl = j.daily || { time: [], weather_code: [], temperature_2m_max: [], temperature_2m_min: [] };
+      const code = c.weather_code ?? 3;
+      const mainIcon = document.getElementById('iconMain');
+      mainIcon.innerHTML = wmoIcon(code, c.is_day === 1);
+      mainIcon.style.color = wmoColor(code);
+      setText('tempTxt', Math.round(c.temperature_2m ?? 0));
+      setText('descTxt', WMO_DESC[code] || '—');
+      setText('feelsTxt', Math.round(c.apparent_temperature ?? 0));
+      setText('humTxt', Math.round(c.relative_humidity_2m ?? 0));
+      setText('windTxt', Math.round(c.wind_speed_10m ?? 0));
+      setText('windDir', compass(c.wind_direction_10m ?? 0));
+      const todayMax = Number.isFinite(dl.temperature_2m_max?.[0]) ? Math.round(dl.temperature_2m_max[0]) : (Number.isFinite(c.temperature_2m) ? Math.round(c.temperature_2m) : '—');
+      const todayMin = Number.isFinite(dl.temperature_2m_min?.[0]) ? Math.round(dl.temperature_2m_min[0]) : (Number.isFinite(c.temperature_2m) ? Math.round(c.temperature_2m) : '—');
+      setText('maxTxt', todayMax);
+      setText('minTxt', todayMin);
+      const dnames = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+      const items = [];
+      for (let i = 1; i <= 3 && i < dl.time.length; i++) {
+        const dd = new Date(dl.time[i] + 'T00:00');
+        const label = i === 1 ? 'MAÑ' : dnames[dd.getDay()].toUpperCase();
+        const ddCode = dl.weather_code[i];
+        const maxVal = Number.isFinite(dl.temperature_2m_max?.[i]) ? Math.round(dl.temperature_2m_max[i]) + '°' : '—°';
+        const minVal = Number.isFinite(dl.temperature_2m_min?.[i]) ? Math.round(dl.temperature_2m_min[i]) + '°' : '—°';
+        items.push(`<div class="w-day"><div class="w-day-label">${label}</div><div class="w-day-icon" style="color:${wmoColor(ddCode)}" aria-hidden="true">${wmoIcon(ddCode, true)}</div><div class="w-day-max">${maxVal}</div><div class="w-day-min">${minVal}</div></div>`);
+      }
+      while (items.length < 3) items.push(`<div class="w-day"><div class="w-day-label">—</div><div class="w-day-icon" aria-hidden="true">${wmoIcon(2, true)}</div><div class="w-day-max">—°</div><div class="w-day-min">—°</div></div>`);
+      document.getElementById('forecastGrid').innerHTML = items.join('');
+    } catch (e) {
+      console.error('Clima fetch error', e);
+      document.getElementById('descTxt').textContent = 'Sin datos';
+      document.getElementById('descTxt').classList.add('w-error');
+    }
+  }
+  document.getElementById('iconMain').innerHTML = wmoIcon(2, true);
+  document.getElementById('forecastGrid').innerHTML = Array(3).fill(0).map(()=>`<div class="w-day"><div class="w-day-label">—</div><div class="w-day-icon" aria-hidden="true">${wmoIcon(2, true)}</div><div class="w-day-max">—°</div><div class="w-day-min">—°</div></div>`).join('');
+  loadWeather();
+  setInterval(loadWeather, 30 * 60 * 1000);
+})();
+
+/* ================= MAREAS: lógica ================= */
+(function(){
+  let raw = null;
+  async function load() {
+    try {
+      const lat = -46.4372, lon = -67.45;
+      const tz = 'America/Argentina/Rio_Gallegos';
+      const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}` +
+        `&hourly=sea_level_height_msl&timezone=${encodeURIComponent(tz)}&past_days=1&forecast_days=2`;
+      const r = await fetch(url);
+      const j = await r.json();
+      raw = { times: j.hourly.time, h: j.hourly.sea_level_height_msl, ms: j.hourly.time.map(t => new Date(t).getTime()), tz };
+      compute();
+    } catch (e) {
+      console.error('Marea fetch error', e);
+      if (!raw) {
+        document.getElementById('mEstadoTxt').textContent = 'SIN DATOS';
+        document.getElementById('mFlecha').textContent = '!';
+      } else compute();
+    }
+  }
+  function compute() {
+    if (!raw) return;
+    const { times, h, ms, tz } = raw;
+    const arNow = new Date().toLocaleString('sv-SE', { timeZone: tz });
+    const nowMs = new Date(arNow.replace(' ', 'T')).getTime();
+    let idx = 0;
+    for (let i = 0; i < ms.length - 1; i++) { if (ms[i] <= nowMs) idx = i; }
+    const hasNext = idx < h.length - 1 && h[idx + 1] != null && h[idx] != null;
+    let altura = h[idx];
+    if (hasNext) {
+      const frac = (nowMs - ms[idx]) / (ms[idx + 1] - ms[idx]);
+      altura = h[idx] + (h[idx + 1] - h[idx]) * frac;
+    }
+    const subiendo = hasNext ? (h[idx + 1] > h[idx]) : true;
+    const fmt = (t) => t.slice(11, 16);
+    let pleamar = '--:--', bajamar = '--:--';
+    for (let i = idx + 1; i < h.length - 1; i++) {
+      if (h[i - 1] == null || h[i] == null || h[i + 1] == null) continue;
+      if (pleamar === '--:--' && h[i] >= h[i - 1] && h[i] > h[i + 1]) pleamar = fmt(times[i]);
+      if (bajamar === '--:--' && h[i] <= h[i - 1] && h[i] < h[i + 1]) bajamar = fmt(times[i]);
+      if (pleamar !== '--:--' && bajamar !== '--:--') break;
+    }
+    const start = Math.max(0, idx - 6);
+    const end = Math.min(h.length - 1, idx + 18);
+    const win = [];
+    for (let i = start; i <= end; i++) if (h[i] != null) win.push({ ms: ms[i], v: h[i] });
+    const vs = win.map(p => p.v);
+    const vmin = Math.min(...vs), vmax = Math.max(...vs);
+    const span = (vmax - vmin) || 1;
+    const t0 = win[0].ms, t1 = win[win.length - 1].ms, tspan = (t1 - t0) || 1;
+    const X = (m) => ((m - t0) / tspan) * 200;
+    const Y = (v) => 54 - ((v - vmin) / span) * 48;
+    const curvePts = win.map(p => `${X(p.ms).toFixed(1)},${Y(p.v).toFixed(1)}`).join(' ');
+    const dnames = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+    const mnames = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const d = new Date(arNow.replace(' ', 'T'));
+    const fecha = `${dnames[d.getDay()]} ${String(d.getDate()).padStart(2,'0')} ${mnames[d.getMonth()]}`;
+    const estadoColor = subiendo ? '#FF9422' : '#35b6ff';
+
+    document.getElementById('mEstadoTxt').textContent = subiendo ? 'SUBIENDO' : 'BAJANDO';
+    document.getElementById('mEstadoTxt').style.color = estadoColor;
+    document.getElementById('mFlecha').textContent = subiendo ? '▲' : '▼';
+    document.getElementById('mFlecha').style.color = estadoColor;
+    document.getElementById('mAlturaTxt').textContent = altura != null ? altura.toFixed(1).replace('.', ',') : '—';
+    document.getElementById('mPleamarTxt').textContent = pleamar;
+    document.getElementById('mBajamarTxt').textContent = bajamar;
+    document.getElementById('mCurvePts').setAttribute('points', curvePts);
+    document.getElementById('mMarker').setAttribute('cx', X(nowMs));
+    document.getElementById('mMarker').setAttribute('cy', Y(altura));
+    document.getElementById('mFecha').textContent = fecha;
+    document.getElementById('mHoraAct').textContent = arNow.slice(11, 16);
+  }
+  load();
+  setInterval(load, 3 * 60 * 60 * 1000);
+  setInterval(compute, 60 * 1000);
+})();
+
+/* ================= RUTAS + FLIP INFERIOR: lógica (corte, sin fade) ================= */
+(function(){
+  const cfg = CONFIG_PARTE;
+  let page = 0;
+  let timer = null;
+  const mareasFace = document.querySelector('.face-mareas');
+  const rutasFace = document.querySelector('.face-rutas');
+
+  function normalize(s) { return (s || '').toString().toLowerCase().replace(/[áàä]/g,'a').replace(/[éèë]/g,'e').replace(/[íìï]/g,'i').replace(/[óòö]/g,'o').replace(/[úùü]/g,'u').replace(/ñ/g,'n'); }
+  function escapeHtml(v) { return (v ?? '').toString().replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+  function isLongObs(v) { return (v ?? '').toString().length > 28; }
+  function statusClass(estado) {
+    const e = normalize(estado);
+    if (e.includes('cort')) return 'cortado';
+    if (e.includes('extrema')) return 'extrema';
+    if (e.includes('restring')) return 'restringido';
+    if (e.includes('precau')) return 'precaucion';
+    if (e.includes('info')) return 'info';
+    return 'ok';
+  }
+  function rowClass(estado) {
+    const e = normalize(estado);
+    if (e.includes('cort')) return 'alert';
+    if (e.includes('extrema')) return 'extreme';
+    if (e.includes('restring') || e.includes('precau')) return 'caution';
+    return '';
+  }
+  function buildRowsHtml(visible) {
+    return visible.map((r) => {
+      const chip = statusClass(r.estado);
+      const klass = rowClass(r.estado);
+      return `<tr class="${klass}">
+        <td class="route">${escapeHtml(r.ruta)}</td>
+        <td class="type">${escapeHtml(r.tipo)}</td>
+        <td>${escapeHtml(r.tramo)}</td>
+        <td><span class="chip ${chip}">${escapeHtml(r.estado)}</span></td>
+        <td class="surface">${escapeHtml(r.calzada)}</td>
+        <td class="obs ${isLongObs(r.observaciones) ? 'obs-scroll' : ''}">
+          <div class="obs-viewport"><div class="obs-track"><span>${escapeHtml(r.observaciones)}</span><span>${escapeHtml(r.observaciones)}</span></div></div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+  function paintRows() {
+    const tbody = document.getElementById('rows');
+    const rows = cfg.filas || [];
+    const totalPages = Math.max(1, Math.ceil(rows.length / FILAS_VISIBLES));
+    if (page >= totalPages) page = 0;
+    const visible = rows.slice(page * FILAS_VISIBLES, page * FILAS_VISIBLES + FILAS_VISIBLES);
+    // Corte directo: sin animación de salida/entrada.
+    tbody.innerHTML = buildRowsHtml(visible);
+  }
+  function paintTicker() {
+    const avisos = cfg.avisos && cfg.avisos.length ? cfg.avisos : ['Información actualizada.'];
+    const html = avisos.map(a => `<span>${escapeHtml(a)}</span>`).join('');
+    const track = document.getElementById('tickerTrack');
+    track.innerHTML = html + html;
+    // Velocidad de lectura constante (~115 px/seg), sin importar cuántos titulares haya.
+    requestAnimationFrame(() => {
+      const mitad = track.scrollWidth / 2;
+      if (mitad > 0) track.style.animationDuration = Math.max(30, Math.round(mitad / 115)) + 's';
+    });
+  }
+  function duracionRutasMs() {
+    // Se mantiene al aire DURACION_RUTAS_SEG o lo que tarde en verse TODA la
+    // informacion (un ciclo completo de paginas): lo que sea mayor.
+    const totalPages = Math.max(1, Math.ceil((cfg.filas || []).length / FILAS_VISIBLES));
+    const cicloMs = totalPages * SEGUNDOS_ROTACION_FILAS * 1000;
+    return Math.max(DURACION_RUTAS_SEG * 1000, cicloMs);
+  }
+  function mostrarRutas() {
+    page = 0;               // arranca siempre desde la primera pagina
+    paintRows();
+    mareasFace.classList.remove('active');
+    rutasFace.classList.add('active');
+    clearTimeout(timer);
+    timer = setTimeout(mostrarMareas, duracionRutasMs());
+  }
+  function mostrarMareas() {
+    rutasFace.classList.remove('active');
+    mareasFace.classList.add('active');
+    clearTimeout(timer);
+    timer = setTimeout(mostrarRutas, DURACION_MAREAS_SEG * 1000);
+  }
+  paintRows();
+  paintTicker();
+  setInterval(() => { if (rutasFace.classList.contains('active')) { page += 1; paintRows(); } }, SEGUNDOS_ROTACION_FILAS * 1000);
+  timer = setTimeout(mostrarRutas, DURACION_MAREAS_SEG * 1000);
+
+  // ----- Descarga automatica del parte.json que publica el robot -----
+  async function cargarParteRemoto() {
+    try {
+      const r = await fetch(PARTE_URL + '?t=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const j = await r.json();
+      if (Array.isArray(j.filas) && j.filas.length) cfg.filas = j.filas;
+      if (Array.isArray(j.avisos) && j.avisos.length) cfg.avisos = j.avisos;
+      page = 0; paintRows(); paintTicker();
+      console.log('Parte remoto cargado:', j.actualizado || '');
+    } catch (e) {
+      console.error('No se pudo bajar el parte remoto, se usa el respaldo embebido:', e);
+    }
+  }
+  cargarParteRemoto();
+  setInterval(cargarParteRemoto, REFRESH_PARTE_MIN * 60 * 1000);
+})();
+</script>
+</body>
+</html>
