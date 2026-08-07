@@ -119,13 +119,16 @@
   .w-forecast { padding: 26px 16px 28px; flex: 1; min-height: 0; display: flex; flex-direction: column; }
   .w-forecast-title { font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 14px; color: var(--muted); letter-spacing: 2px; margin-bottom: 18px; flex-shrink: 0; }
   .w-forecast-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
-  .w-day { height: 100%; background: var(--panel); padding: 18px 4px 16px; display: grid; grid-template-rows: auto 1fr auto auto; place-items: center; row-gap: 12px; text-align: center; }
+  .w-day { height: 100%; background: var(--panel); padding: 16px 4px 14px; display: grid; grid-template-rows: auto 1fr auto auto auto; place-items: center; row-gap: 9px; text-align: center; }
   .w-day-label { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 16px; color: var(--soft); letter-spacing: 1px; line-height: 1; }
   .w-day-icon { width: 62px; height: 62px; display: flex; align-items: center; justify-content: center; }
   .w-day-icon svg { width: 58px; height: 58px; display: block; overflow: visible; }
   .w-day-icon .ray, .w-day-icon .drop, .w-day-icon .snow, .w-day-icon .fog-line, .w-day-icon .bolt, .w-day-icon .cloud-shape, .w-day-icon .sun-core, .w-day-icon .moon-core { animation: none !important; }
   .w-day-max { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 27px; color: #fff; line-height: 1; width: 100%; text-align: center; }
   .w-day-min { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 21px; color: var(--muted); line-height: 1; width: 100%; text-align: center; }
+  .w-day-wind { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 13px; color: #6f9bff; line-height: 1.25; width: 100%; text-align: center; letter-spacing: .3px; }
+  .w-day-wind small { font-size: 10px; color: var(--muted); font-weight: 600; }
+  .w-day-wind .gust { display: block; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: .2px; }
   .w-error { color: #ff8a80 !important; }
 
   .weather-svg * { transform-box: fill-box; transform-origin: center; }
@@ -282,7 +285,7 @@ const CONFIG_PARTE = {
 };
 
 const DURACION_MAREAS_SEG = 13;
-const DURACION_RUTAS_SEG = 300; // minimo 5 minutos; si un ciclo completo de paginas tarda mas, se extiende solo
+const DURACION_RUTAS_SEG = 420; // minimo 7 minutos; si el ciclo de paginas o del ticker de noticias tarda mas, se extiende solo
 const FILAS_VISIBLES = 2;
 const SEGUNDOS_ROTACION_FILAS = 10;
 </script>
@@ -453,7 +456,7 @@ const SEGUNDOS_ROTACION_FILAS = 10;
       url.search = new URLSearchParams({
         latitude: lat, longitude: lon,
         current: 'temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,wind_speed_10m,wind_direction_10m',
-        daily: 'weather_code,temperature_2m_max,temperature_2m_min',
+        daily: 'weather_code,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant',
         timezone: tz, forecast_days: '4', wind_speed_unit: 'kmh'
       }).toString();
       const r = await fetch(url.toString(), { cache: 'no-store' });
@@ -483,9 +486,15 @@ const SEGUNDOS_ROTACION_FILAS = 10;
         const ddCode = dl.weather_code[i];
         const maxVal = Number.isFinite(dl.temperature_2m_max?.[i]) ? Math.round(dl.temperature_2m_max[i]) + '°' : '—°';
         const minVal = Number.isFinite(dl.temperature_2m_min?.[i]) ? Math.round(dl.temperature_2m_min[i]) + '°' : '—°';
-        items.push(`<div class="w-day"><div class="w-day-label">${label}</div><div class="w-day-icon" style="color:${wmoColor(ddCode)}" aria-hidden="true">${wmoIcon(ddCode, true)}</div><div class="w-day-max">${maxVal}</div><div class="w-day-min">${minVal}</div></div>`);
+        const wVal = Number.isFinite(dl.wind_speed_10m_max?.[i]) ? Math.round(dl.wind_speed_10m_max[i]) : null;
+        const wRaf = Number.isFinite(dl.wind_gusts_10m_max?.[i]) ? Math.round(dl.wind_gusts_10m_max[i]) : null;
+        const wDir = Number.isFinite(dl.wind_direction_10m_dominant?.[i]) ? compass(dl.wind_direction_10m_dominant[i]) : '';
+        const windHtml = wVal != null
+          ? `<div class="w-day-wind">${wDir} ${wVal}<small> km/h</small>${wRaf != null ? `<span class="gust">ráf. ${wRaf}</span>` : ''}</div>`
+          : '<div class="w-day-wind">—</div>';
+        items.push(`<div class="w-day"><div class="w-day-label">${label}</div><div class="w-day-icon" style="color:${wmoColor(ddCode)}" aria-hidden="true">${wmoIcon(ddCode, true)}</div><div class="w-day-max">${maxVal}</div><div class="w-day-min">${minVal}</div>${windHtml}</div>`);
       }
-      while (items.length < 3) items.push(`<div class="w-day"><div class="w-day-label">—</div><div class="w-day-icon" aria-hidden="true">${wmoIcon(2, true)}</div><div class="w-day-max">—°</div><div class="w-day-min">—°</div></div>`);
+      while (items.length < 3) items.push(`<div class="w-day"><div class="w-day-label">—</div><div class="w-day-icon" aria-hidden="true">${wmoIcon(2, true)}</div><div class="w-day-max">—°</div><div class="w-day-min">—°</div><div class="w-day-wind">—</div></div>`);
       document.getElementById('forecastGrid').innerHTML = items.join('');
     } catch (e) {
       console.error('Clima fetch error', e);
@@ -494,7 +503,7 @@ const SEGUNDOS_ROTACION_FILAS = 10;
     }
   }
   document.getElementById('iconMain').innerHTML = wmoIcon(2, true);
-  document.getElementById('forecastGrid').innerHTML = Array(3).fill(0).map(()=>`<div class="w-day"><div class="w-day-label">—</div><div class="w-day-icon" aria-hidden="true">${wmoIcon(2, true)}</div><div class="w-day-max">—°</div><div class="w-day-min">—°</div></div>`).join('');
+  document.getElementById('forecastGrid').innerHTML = Array(3).fill(0).map(()=>`<div class="w-day"><div class="w-day-label">—</div><div class="w-day-icon" aria-hidden="true">${wmoIcon(2, true)}</div><div class="w-day-max">—°</div><div class="w-day-min">—°</div><div class="w-day-wind">—</div></div>`).join('');
   loadWeather();
   setInterval(loadWeather, 30 * 60 * 1000);
 })();
@@ -629,23 +638,31 @@ const SEGUNDOS_ROTACION_FILAS = 10;
     // Corte directo: sin animación de salida/entrada.
     tbody.innerHTML = buildRowsHtml(visible);
   }
+  function ajustarTicker() {
+    // Velocidad de lectura constante (~115 px/seg). Devuelve cuanto tarda una
+    // vuelta completa (todas las noticias). Solo puede medirse con la cara
+    // de rutas VISIBLE; oculta devuelve 0.
+    const track = document.getElementById('tickerTrack');
+    const mitad = track.scrollWidth / 2;
+    if (mitad <= 0) return 0;
+    const seg = Math.max(30, Math.round(mitad / 115));
+    track.style.animationDuration = seg + 's';
+    return seg * 1000;
+  }
   function paintTicker() {
     const avisos = cfg.avisos && cfg.avisos.length ? cfg.avisos : ['Información actualizada.'];
     const html = avisos.map(a => `<span>${escapeHtml(a)}</span>`).join('');
-    const track = document.getElementById('tickerTrack');
-    track.innerHTML = html + html;
-    // Velocidad de lectura constante (~115 px/seg), sin importar cuántos titulares haya.
-    requestAnimationFrame(() => {
-      const mitad = track.scrollWidth / 2;
-      if (mitad > 0) track.style.animationDuration = Math.max(30, Math.round(mitad / 115)) + 's';
-    });
+    document.getElementById('tickerTrack').innerHTML = html + html;
+    requestAnimationFrame(ajustarTicker);
   }
   function duracionRutasMs() {
     // Se mantiene al aire DURACION_RUTAS_SEG o lo que tarde en verse TODA la
-    // informacion (un ciclo completo de paginas): lo que sea mayor.
+    // informacion: un ciclo completo de paginas Y una vuelta completa del
+    // ticker de noticias (lo que sea mayor).
     const totalPages = Math.max(1, Math.ceil((cfg.filas || []).length / FILAS_VISIBLES));
-    const cicloMs = totalPages * SEGUNDOS_ROTACION_FILAS * 1000;
-    return Math.max(DURACION_RUTAS_SEG * 1000, cicloMs);
+    const cicloPaginasMs = totalPages * SEGUNDOS_ROTACION_FILAS * 1000;
+    const cicloTickerMs = ajustarTicker(); // medido con la cara visible
+    return Math.max(DURACION_RUTAS_SEG * 1000, cicloPaginasMs, cicloTickerMs);
   }
   function mostrarRutas() {
     page = 0;               // arranca siempre desde la primera pagina
@@ -653,7 +670,8 @@ const SEGUNDOS_ROTACION_FILAS = 10;
     mareasFace.classList.remove('active');
     rutasFace.classList.add('active');
     clearTimeout(timer);
-    timer = setTimeout(mostrarMareas, duracionRutasMs());
+    // rAF: la cara ya esta visible, asi el ancho del ticker se mide bien
+    requestAnimationFrame(() => { timer = setTimeout(mostrarMareas, duracionRutasMs()); });
   }
   function mostrarMareas() {
     rutasFace.classList.remove('active');
