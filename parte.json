@@ -1,7 +1,7 @@
 {
-  "actualizado": "07/08/2026 15:45",
-  "fecha_parte_nacional": "07/08 08:00",
-  "fecha_parte_provincial": "07/08 08:00",
+  "actualizado": "07/08/2026 17:09",
+  "fecha_parte_nacional": "07/08 16:00",
+  "fecha_parte_provincial": "07/08 16:00",
   "fuente_nacional": "htm",
   "fuente_provincial": "htm",
   "filas": [
@@ -51,7 +51,7 @@
       "tramo": "Puerto Deseado / Emp. R.N. Nº 3",
       "estado": "PRECAUCION",
       "calzada": "Bueno-Regular",
-      "observaciones": "Animales sueltos Banquina inestable."
+      "observaciones": "Animales sueltos Banquina inestable Tareas preventivas, riego de liquido antihielo."
     },
     {
       "ruta": "RP 17",
@@ -76,6 +76,30 @@
       "estado": "EXTREMA",
       "calzada": "Bueno-Regular",
       "observaciones": "Animales sueltos Presencia de escarcha."
+    },
+    {
+      "ruta": "RN 40",
+      "tipo": "Nacional",
+      "tramo": "Emp. R.P. Nº 29 (Lago Cardiel) / Emp. R.P. Nº 73 (Ea. La Siberia)",
+      "estado": "CORTADO",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Restringida para todo tipo de vehículos Acumulación de nieve. Visibilidad reducida por voladeros Equipo y personal trabajando / Despeje de nieve."
+    },
+    {
+      "ruta": "RN 40",
+      "tipo": "Nacional",
+      "tramo": "Emp. R.P. Nº 73 (Ea. La Siberia) / Ea. La Lucia (pavimento)",
+      "estado": "CORTADO",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Restringida para todo tipo de vehículos Acumulación de nieve. Visibilidad reducida por voladeros Equipo y personal trabajando / Despeje de nieve."
+    },
+    {
+      "ruta": "RN 40",
+      "tipo": "Nacional",
+      "tramo": "Ea. La Lucia / Emp. R.N Nº 288 (Tres Lagos)",
+      "estado": "CORTADO",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Restringida para todo tipo de vehículos Calzada con nieve / Acumulación de nieve. Visibilidad reducida por voladeros Equipos y personal trabajando."
     },
     {
       "ruta": "RP 14",
@@ -124,30 +148,6 @@
       "estado": "CORTADO",
       "calzada": "Regular",
       "observaciones": "Restricción hasta nuevo aviso. Acumulación de nieve y barro sobre la calzada."
-    },
-    {
-      "ruta": "RP 41",
-      "tipo": "Provincial",
-      "tramo": "Emp. R.P. Nº 39 (Lago Posadas) / Pque Nac. Perito Moreno (Destac. Onelli)",
-      "estado": "CORTADO",
-      "calzada": "Regular-Malo",
-      "observaciones": "Restringida para todo tipo de vehículos Restricción hasta nuevo aviso."
-    },
-    {
-      "ruta": "RP 47",
-      "tipo": "Provincial",
-      "tramo": "Emp. R.N. Nº 281 (Tellier) / Emp. R.P. Nº 62",
-      "estado": "RESTRINGIDO",
-      "calzada": "Bueno-Regular",
-      "observaciones": "Restringida para todo tipo de vehículos."
-    },
-    {
-      "ruta": "RP 47",
-      "tipo": "Provincial",
-      "tramo": "Emp. R.P. Nº 62 / Emp. R.N. Nº 3 (El Salado)",
-      "estado": "RESTRINGIDO",
-      "calzada": "Bueno-Regular",
-      "observaciones": "Restringida para todo tipo de vehículos."
     }
   ],
   "avisos": [
