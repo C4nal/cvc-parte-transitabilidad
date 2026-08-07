@@ -639,6 +639,31 @@ def _avisos_google_news():
         return []
 
 
+def _titulo_con_fecha_vieja(titulo, ahora):
+    """True si el titulo menciona una fecha de dias ANTERIORES (noticia vieja).
+    Detecta '5 de agosto', '05/08', '5-8'. Solo descarta fechas de los ultimos
+    6 dias que no sean hoy (las fechas historicas/lejanas no cuentan)."""
+    n = norm(titulo)
+    fechas = []
+    for m in re.finditer(r"\b(\d{1,2})\s+de\s+([a-z]+)", n):
+        mes = MESES.get(m.group(2))
+        if mes:
+            fechas.append((int(m.group(1)), mes))
+    for m in re.finditer(r"\b(\d{1,2})[/-](\d{1,2})\b", n):
+        d, mo = int(m.group(1)), int(m.group(2))
+        if 1 <= mo <= 12:
+            fechas.append((d, mo))
+    for dia, mes in fechas:
+        try:
+            f = datetime(ahora.year, mes, dia, tzinfo=TZ_AR).date()
+        except ValueError:
+            continue
+        dif = (ahora.date() - f).days
+        if 1 <= dif <= 6:
+            return True
+    return False
+
+
 def obtener_avisos():
     """Junta las notas mas nuevas de i24 (portada + secciones, con reintentos).
     Si i24 no responde desde la nube, usa Google News como respaldo.
@@ -678,14 +703,20 @@ def obtener_avisos():
     if PRIORIZAR_LOCALES:
         ventana = [tt for tt in ventana if es_local(tt)] + [tt for tt in ventana if not es_local(tt)]
 
-    orden, vistas_t = [], set()
+    ahora = datetime.now(TZ_AR)
+    orden, vistas_t, viejas = [], set(), 0
     for tt in ventana:
         if norm(tt) in vistas_t:
             continue
         vistas_t.add(norm(tt))
+        if _titulo_con_fecha_vieja(tt, ahora):
+            viejas += 1
+            continue
         orden.append(tt)
         if len(orden) >= CANT_AVISOS:
             break
+    if viejas:
+        DIAG_I24.append(f"- descartadas por fecha vieja en el titulo: {viejas}")
     return orden
 
 

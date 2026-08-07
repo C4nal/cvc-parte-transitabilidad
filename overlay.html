@@ -119,16 +119,21 @@
   .w-forecast { padding: 26px 16px 28px; flex: 1; min-height: 0; display: flex; flex-direction: column; }
   .w-forecast-title { font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 14px; color: var(--muted); letter-spacing: 2px; margin-bottom: 18px; flex-shrink: 0; }
   .w-forecast-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
-  .w-day { height: 100%; background: var(--panel); padding: 16px 4px 14px; display: grid; grid-template-rows: auto 1fr auto auto auto; place-items: center; row-gap: 9px; text-align: center; }
+  .w-day { height: 100%; background: var(--panel); padding: 12px 4px 12px; display: grid; grid-template-rows: auto auto auto 1fr; place-items: center; row-gap: 7px; text-align: center; }
   .w-day-label { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 16px; color: var(--soft); letter-spacing: 1px; line-height: 1; }
   .w-day-icon { width: 62px; height: 62px; display: flex; align-items: center; justify-content: center; }
   .w-day-icon svg { width: 58px; height: 58px; display: block; overflow: visible; }
   .w-day-icon .ray, .w-day-icon .drop, .w-day-icon .snow, .w-day-icon .fog-line, .w-day-icon .bolt, .w-day-icon .cloud-shape, .w-day-icon .sun-core, .w-day-icon .moon-core { animation: none !important; }
-  .w-day-max { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 27px; color: #fff; line-height: 1; width: 100%; text-align: center; }
-  .w-day-min { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 21px; color: var(--muted); line-height: 1; width: 100%; text-align: center; }
-  .w-day-wind { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 13px; color: #6f9bff; line-height: 1.25; width: 100%; text-align: center; letter-spacing: .3px; }
-  .w-day-wind small { font-size: 10px; color: var(--muted); font-weight: 600; }
-  .w-day-wind .gust { display: block; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: .2px; }
+  .w-day-temps { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 27px; color: #fff; line-height: 1; width: 100%; text-align: center; }
+  .w-day-temps .min { font-weight: 600; font-size: 21px; color: var(--muted); }
+  .w-day-wind { align-self: stretch; justify-self: stretch; border-top: 1px solid var(--line); margin: 2px 5px 0; padding-top: 9px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
+  .wd-dir { display: flex; align-items: center; justify-content: center; gap: 4px; font-family: 'Barlow', sans-serif; font-weight: 800; font-size: 15px; letter-spacing: .5px; color: #fff; }
+  .wd-icon { width: 16px; height: 16px; color: var(--sky); flex-shrink: 0; }
+  .wd-arrow { width: 15px; height: 15px; color: var(--orange); flex-shrink: 0; }
+  .wd-vel { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 27px; color: #fff; line-height: 1; }
+  .wd-vel small { font-size: 13px; color: var(--muted); font-family: 'Barlow', sans-serif; font-weight: 600; }
+  .wd-raf { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 13.5px; color: var(--orange); letter-spacing: .3px; }
+  .wd-raf small { font-size: 11px; color: var(--muted); font-weight: 600; }
   .w-error { color: #ff8a80 !important; }
 
   .weather-svg * { transform-box: fill-box; transform-origin: center; }
@@ -236,7 +241,7 @@
   .ticker-label { flex: 0 0 112px; height: 100%; display: grid; place-items: center; background: rgba(10,10,10,.86); border-right: 1px solid rgba(255,255,255,.13); }
   .ticker-logo { display: block; width: 92px; height: 38px; object-fit: contain; filter: drop-shadow(0 0 6px rgba(255,148,34,.32)); animation: i24Appear 3.4s ease-in-out infinite; }
   .ticker-viewport { flex: 1 1 auto; min-width: 0; height: 100%; overflow: hidden; padding-left: 18px; display: flex; align-items: center; }
-  .ticker-track { display: flex; min-width: 200%; height: 24px; align-items: center; animation: ticker 42s linear infinite; font-family: 'IBM Plex Mono', monospace; font-size: 19px; line-height: 24px; color: #a9b9ed; white-space: nowrap; }
+  .ticker-track { display: flex; min-width: 200%; height: 24px; align-items: center; will-change: transform; font-family: 'IBM Plex Mono', monospace; font-size: 19px; line-height: 24px; color: #a9b9ed; white-space: nowrap; }
   .ticker-track span { padding-right: 78px; }
 </style>
 </head>
@@ -447,6 +452,20 @@ const SEGUNDOS_ROTACION_FILAS = 10;
     const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
     return dirs[Math.round(deg / 22.5) % 16];
   }
+  function windDayHtml(deg, vel, raf) {
+    // Bloque de viento por dia: icono + flecha de direccion + velocidad + rafagas
+    if (vel == null) return '<div class="w-day-wind"><div class="wd-dir">—</div></div>';
+    const icono = '<svg class="wd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M3 8h9a2.5 2.5 0 1 0-2.4-3.2M3 12h13a2.5 2.5 0 1 1-2.4 3.2M3 16h7a2 2 0 1 1-1.9 2.6"/></svg>';
+    const flecha = deg != null
+      ? `<svg class="wd-arrow" viewBox="0 0 24 24" style="transform:rotate(${(deg + 180) % 360}deg)" aria-hidden="true"><path d="M12 3l6 8.5h-4V21h-4V11.5H6z" fill="currentColor"/></svg>`
+      : '';
+    const dir = deg != null ? compass(deg) : '';
+    return `<div class="w-day-wind">
+      <div class="wd-dir">${icono}${flecha}<span>${dir}</span></div>
+      <div class="wd-vel">${vel}<small> km/h</small></div>
+      ${raf != null ? `<div class="wd-raf">Ráf. ${raf}<small> km/h</small></div>` : ''}
+    </div>`;
+  }
   function setText(id, value) { document.getElementById(id).textContent = value; }
   async function loadWeather() {
     try {
@@ -488,13 +507,10 @@ const SEGUNDOS_ROTACION_FILAS = 10;
         const minVal = Number.isFinite(dl.temperature_2m_min?.[i]) ? Math.round(dl.temperature_2m_min[i]) + '°' : '—°';
         const wVal = Number.isFinite(dl.wind_speed_10m_max?.[i]) ? Math.round(dl.wind_speed_10m_max[i]) : null;
         const wRaf = Number.isFinite(dl.wind_gusts_10m_max?.[i]) ? Math.round(dl.wind_gusts_10m_max[i]) : null;
-        const wDir = Number.isFinite(dl.wind_direction_10m_dominant?.[i]) ? compass(dl.wind_direction_10m_dominant[i]) : '';
-        const windHtml = wVal != null
-          ? `<div class="w-day-wind">${wDir} ${wVal}<small> km/h</small>${wRaf != null ? `<span class="gust">ráf. ${wRaf}</span>` : ''}</div>`
-          : '<div class="w-day-wind">—</div>';
-        items.push(`<div class="w-day"><div class="w-day-label">${label}</div><div class="w-day-icon" style="color:${wmoColor(ddCode)}" aria-hidden="true">${wmoIcon(ddCode, true)}</div><div class="w-day-max">${maxVal}</div><div class="w-day-min">${minVal}</div>${windHtml}</div>`);
+        const wDeg = Number.isFinite(dl.wind_direction_10m_dominant?.[i]) ? Math.round(dl.wind_direction_10m_dominant[i]) : null;
+        items.push(`<div class="w-day"><div class="w-day-label">${label}</div><div class="w-day-icon" style="color:${wmoColor(ddCode)}" aria-hidden="true">${wmoIcon(ddCode, true)}</div><div class="w-day-temps">${maxVal}<span class="min">/${minVal}</span></div>${windDayHtml(wDeg, wVal, wRaf)}</div>`);
       }
-      while (items.length < 3) items.push(`<div class="w-day"><div class="w-day-label">—</div><div class="w-day-icon" aria-hidden="true">${wmoIcon(2, true)}</div><div class="w-day-max">—°</div><div class="w-day-min">—°</div><div class="w-day-wind">—</div></div>`);
+      while (items.length < 3) items.push(`<div class="w-day"><div class="w-day-label">—</div><div class="w-day-icon" aria-hidden="true">${wmoIcon(2, true)}</div><div class="w-day-temps">—°<span class="min">/—°</span></div><div class="w-day-wind"><div class="wd-dir">—</div></div></div>`);
       document.getElementById('forecastGrid').innerHTML = items.join('');
     } catch (e) {
       console.error('Clima fetch error', e);
@@ -503,7 +519,7 @@ const SEGUNDOS_ROTACION_FILAS = 10;
     }
   }
   document.getElementById('iconMain').innerHTML = wmoIcon(2, true);
-  document.getElementById('forecastGrid').innerHTML = Array(3).fill(0).map(()=>`<div class="w-day"><div class="w-day-label">—</div><div class="w-day-icon" aria-hidden="true">${wmoIcon(2, true)}</div><div class="w-day-max">—°</div><div class="w-day-min">—°</div><div class="w-day-wind">—</div></div>`).join('');
+  document.getElementById('forecastGrid').innerHTML = Array(3).fill(0).map(()=>`<div class="w-day"><div class="w-day-label">—</div><div class="w-day-icon" aria-hidden="true">${wmoIcon(2, true)}</div><div class="w-day-temps">—°<span class="min">/—°</span></div><div class="w-day-wind"><div class="wd-dir">—</div></div></div>`).join('');
   loadWeather();
   setInterval(loadWeather, 30 * 60 * 1000);
 })();
@@ -638,22 +654,40 @@ const SEGUNDOS_ROTACION_FILAS = 10;
     // Corte directo: sin animación de salida/entrada.
     tbody.innerHTML = buildRowsHtml(visible);
   }
-  function ajustarTicker() {
-    // Velocidad de lectura constante (~115 px/seg). Devuelve cuanto tarda una
-    // vuelta completa (todas las noticias). Solo puede medirse con la cara
-    // de rutas VISIBLE; oculta devuelve 0.
-    const track = document.getElementById('tickerTrack');
-    const mitad = track.scrollWidth / 2;
-    if (mitad <= 0) return 0;
-    const seg = Math.max(30, Math.round(mitad / 115));
-    track.style.animationDuration = seg + 's';
-    return seg * 1000;
+  // ----- Ticker de noticias: marquesina controlada por JS -----
+  // Inmune a los reinicios de las animaciones CSS (mostrar/ocultar la cara,
+  // recarga de datos): conserva la posicion y asi pasan SIEMPRE todas las
+  // noticias. Velocidad de lectura constante.
+  const TICKER_PX_SEG = 115;   // px por segundo
+  let tkPos = 0, tkCopyW = 0, tkLast = null;
+  function medirTicker() {
+    tkCopyW = document.getElementById('tickerTrack').scrollWidth / 2;
+    return tkCopyW;
+  }
+  function cicloTickerMs() {
+    // cuanto tarda UNA vuelta completa (todas las noticias)
+    const w = medirTicker() || tkCopyW;
+    return w > 0 ? Math.round(w / TICKER_PX_SEG * 1000) : 0;
+  }
+  function pasoTicker(ts) {
+    const el = document.getElementById('tickerTrack');
+    if (tkLast != null && rutasFace.classList.contains('active')) {
+      if (tkCopyW <= 0) medirTicker();
+      if (tkCopyW > 0) {
+        tkPos = (tkPos + (ts - tkLast) / 1000 * TICKER_PX_SEG) % tkCopyW;
+        el.style.transform = 'translateX(' + (-tkPos).toFixed(1) + 'px)';
+      }
+    }
+    tkLast = ts;
+    requestAnimationFrame(pasoTicker);
   }
   function paintTicker() {
     const avisos = cfg.avisos && cfg.avisos.length ? cfg.avisos : ['Información actualizada.'];
     const html = avisos.map(a => `<span>${escapeHtml(a)}</span>`).join('');
-    document.getElementById('tickerTrack').innerHTML = html + html;
-    requestAnimationFrame(ajustarTicker);
+    const el = document.getElementById('tickerTrack');
+    el.innerHTML = html + html;
+    tkPos = 0; tkCopyW = 0;
+    el.style.transform = 'translateX(0)';
   }
   function duracionRutasMs() {
     // Se mantiene al aire DURACION_RUTAS_SEG o lo que tarde en verse TODA la
@@ -661,8 +695,8 @@ const SEGUNDOS_ROTACION_FILAS = 10;
     // ticker de noticias (lo que sea mayor).
     const totalPages = Math.max(1, Math.ceil((cfg.filas || []).length / FILAS_VISIBLES));
     const cicloPaginasMs = totalPages * SEGUNDOS_ROTACION_FILAS * 1000;
-    const cicloTickerMs = ajustarTicker(); // medido con la cara visible
-    return Math.max(DURACION_RUTAS_SEG * 1000, cicloPaginasMs, cicloTickerMs);
+    const vueltaTickerMs = cicloTickerMs(); // medido con la cara visible
+    return Math.max(DURACION_RUTAS_SEG * 1000, cicloPaginasMs, vueltaTickerMs);
   }
   function mostrarRutas() {
     page = 0;               // arranca siempre desde la primera pagina
@@ -681,6 +715,7 @@ const SEGUNDOS_ROTACION_FILAS = 10;
   }
   paintRows();
   paintTicker();
+  requestAnimationFrame(pasoTicker);
   setInterval(() => { if (rutasFace.classList.contains('active')) { page += 1; paintRows(); } }, SEGUNDOS_ROTACION_FILAS * 1000);
   timer = setTimeout(mostrarRutas, DURACION_MAREAS_SEG * 1000);
 
