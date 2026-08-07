@@ -1,5 +1,5 @@
 {
-  "actualizado": "07/08/2026 15:30",
+  "actualizado": "07/08/2026 15:45",
   "fecha_parte_nacional": "07/08 08:00",
   "fecha_parte_provincial": "07/08 08:00",
   "fuente_nacional": "htm",
@@ -161,5 +161,6 @@
     "Presentaron el nuevo Sistema de Guía de Tránsito Electrónica",
     "Educación: Entrega de libros en escuelas primarias con una nueva jornada en el Colegio Salesiano",
     "La Corte Suprema aprobó su presupuesto 2027 y reclamó al Gobierno mayores recursos"
-  ]
+  ],
+  "avisos_max_id": 0
 }
