@@ -13,6 +13,7 @@ tecnico en resumen.md (visible en Actions).
 
 import re
 import io
+import os
 import sys
 import json
 import time
@@ -45,6 +46,10 @@ I24_SECCIONES = ["categoria/2/actualidad", "categoria/5/politica",
 # Respaldo si i24 bloquea al robot (p. ej. Cloudflare): notas via Google News.
 I24_GNEWS = ("https://news.google.com/rss/search?q=site:i24.com.ar"
              "&hl=es-419&gl=AR&ceid=AR:es-419")
+# Llave para que el Cloudflare del propio i24 deje pasar al robot.
+# Se carga como secret I24_TOKEN en GitHub + una regla WAF en Cloudflare
+# que saltea las protecciones cuando llega el header X-CVC-Robot con esta llave.
+I24_TOKEN = os.environ.get("I24_TOKEN", "").strip()
 
 # Rutas priorizadas por cercania a Caleta Olivia: se muestra 1 tramo de cada
 # una (en este orden), despues el 2do de cada una, y asi. Editable.
@@ -107,17 +112,38 @@ def limpiar(s):
 
 def http_get(url, binary=False):
     params = {"_": int(datetime.now().timestamp())}
-    r = requests.get(url, headers=HEADERS, params=params, timeout=45)
-    r.raise_for_status()
+    headers = dict(HEADERS)
+    if I24_TOKEN and "i24.com.ar" in url:
+        headers["X-CVC-Robot"] = I24_TOKEN
+    ultimo = None
+    for _ in range(2):                       # 2 intentos ante fallas de red
+        try:
+            r = requests.get(url, headers=headers, params=params, timeout=45)
+            r.raise_for_status()
+            ultimo = None
+            break
+        except Exception as e:
+            ultimo = e
+            time.sleep(4)
+    if ultimo:
+        raise ultimo
     if binary:
         return r.content
-    r.encoding = r.apparent_encoding or "utf-8"
-    return r.text
+    # Decodificar con el charset DECLARADO en la pagina (los .htm de AGVP son
+    # Excel exportado en windows-1252; la autodeteccion a veces falla y rompe
+    # los caracteres N°/Día, con lo que el parser no encuentra nada).
+    raw = r.content
+    m = re.search(rb'charset=["\']?([\w\-]+)', raw[:2048], re.I)
+    enc = (m.group(1).decode("ascii", "ignore").strip() if m else "") or r.apparent_encoding or "utf-8"
+    try:
+        return raw.decode(enc, errors="replace")
+    except LookupError:
+        return raw.decode("utf-8", errors="replace")
 
 
 def leer_fecha(texto):
     t = limpiar(texto)
-    md = re.search(r"D[ií]a\s+\w+,?\s*(\d{1,2})\s+de\s+([A-Za-zÁ-úá-ú]+)\s+de\s+(\d{4})", t, re.I)
+    md = re.search(r"D[ií\ufffd]a\s+\w+,?\s*(\d{1,2})\s+de\s+([A-Za-zÁ-úá-ú]+)\s+de\s+(\d{4})", t, re.I)
     mh = re.search(r"Hora\s*([0-2]?\d[:\.][0-5]\d)", t, re.I)
     if not md:
         return None, ""
@@ -173,7 +199,7 @@ def leer_calzada(txt):
 
 
 def quitar_transit(txt):
-    txt = re.sub(r"Transitable con (?:extrema )?precauci[oó]n\.?", " ", txt or "")
+    txt = re.sub(r"Transitable con (?:extrema )?precauci[oó\ufffd]n\.?", " ", txt or "")
     txt = re.sub(r"\bIntransitable\b", " ", txt)
     return limpiar(txt)
 
@@ -186,7 +212,7 @@ def _fila_desde_bloque(nro, tipo, tramo_ini, estado_raw, resto):
     transit_raw = resto
     estado = mapear_estado(estado_raw, transit_raw)
     calzada = leer_calzada(resto)
-    mkm = re.search(r"\(\s*\d+\s+kil[óo]metros", resto, re.I)
+    mkm = re.search(r"\(\s*\d+\s+kil[óo\ufffd]metros", resto, re.I)
     corte = mkm.start() if mkm else -1
     destino_zone = resto[:corte] if corte > 0 else resto
     destino_zone = quitar_transit(destino_zone)
@@ -220,7 +246,7 @@ def filas_desde_htm(texto_html, tipo):
     texto = soup.get_text("\n")
     fecha_dt, fecha_leg = leer_fecha(texto)
     lineas = [limpiar(l) for l in texto.split("\n") if limpiar(l)]
-    ancla = re.compile(r"^(Nac|Prov)\.?\s*N[°ºo]\s*\d+\b", re.I)
+    ancla = re.compile(r"^(Nac|Prov)\.?\s*N[°ºo\ufffd]\s*\d+\b", re.I)
     registros, actual = [], None
     for l in lineas:
         if ancla.match(l):
@@ -234,7 +260,7 @@ def filas_desde_htm(texto_html, tipo):
     filas = []
     for reg in registros:
         texto_seg = " ".join(reg)
-        m = re.match(r"^(Nac|Prov)\.?\s*N[°ºo]\s*(\d+)\s+(.*?)\s+(HABILITADA|RESTRINGIDA|CORTE TOTAL)\b(.*)$",
+        m = re.match(r"^(Nac|Prov)\.?\s*N[°ºo\ufffd]\s*(\d+)\s+(.*?)\s+(HABILITADA|RESTRINGIDA|CORTE TOTAL)\b(.*)$",
                      texto_seg, re.I | re.S)
         if not m:
             continue
@@ -257,14 +283,14 @@ def filas_desde_htm_celdas(texto_html, tipo):
             trs.append(celdas)
     # unir todo el texto por filas y volver a agrupar por ancla
     blob = "  ".join("  ".join(c) for c in trs)
-    ancla = re.compile(r"(Nac|Prov)\.?\s*N[°ºo]\s*\d+", re.I)
+    ancla = re.compile(r"(Nac|Prov)\.?\s*N[°ºo\ufffd]\s*\d+", re.I)
     partes = list(ancla.finditer(blob))
     filas = []
     for i, mm in enumerate(partes):
         ini = mm.start()
         fin = partes[i + 1].start() if i + 1 < len(partes) else len(blob)
         seg = blob[ini:fin]
-        m = re.match(r"^(Nac|Prov)\.?\s*N[°ºo]\s*(\d+)\s+(.*?)\s+(HABILITADA|RESTRINGIDA|CORTE TOTAL)\b(.*)$",
+        m = re.match(r"^(Nac|Prov)\.?\s*N[°ºo\ufffd]\s*(\d+)\s+(.*?)\s+(HABILITADA|RESTRINGIDA|CORTE TOTAL)\b(.*)$",
                      seg, re.I | re.S)
         if not m:
             continue
@@ -289,7 +315,7 @@ def filas_desde_htm_columnas(texto_html, tipo):
         cells = [c for c in cells if c]
         if cells:
             trs.append(cells)
-    ancla = re.compile(r"^(Nac|Prov)\.?\s*N[°ºo]\s*\d+", re.I)
+    ancla = re.compile(r"^(Nac|Prov)\.?\s*N[°ºo\ufffd]\s*\d+", re.I)
     segmentos, actual = [], None
     for cells in trs:
         if ancla.match(cells[0]):
@@ -315,7 +341,7 @@ def _es_estado(c):
 
 def _parsear_segmento_columnas(seg, tipo):
     row0 = seg[0]
-    m = re.match(r"(Nac|Prov)\.?\s*N[°ºo]\s*(\d+)", row0[0], re.I)
+    m = re.match(r"(Nac|Prov)\.?\s*N[°ºo\ufffd]\s*(\d+)", row0[0], re.I)
     if not m:
         return None
     nro = m.group(2)
@@ -338,10 +364,10 @@ def _parsear_segmento_columnas(seg, tipo):
     tramo_fin, calzada = "", ""
     for cells in seg[1:]:
         joined = " ".join(cells)
-        if re.search(r"\(\s*\d+\s+kil[óo]metros", joined, re.I) or "calzada:" in joined.lower():
+        if re.search(r"\(\s*\d+\s+kil[óo\ufffd]metros", joined, re.I) or "calzada:" in joined.lower():
             calzada = leer_calzada(joined) or calzada
             for c in cells:
-                if re.search(r"\(\s*\d+\s+kil[óo]metros", c, re.I):
+                if re.search(r"\(\s*\d+\s+kil[óo\ufffd]metros", c, re.I):
                     continue
                 if "calzada:" in c.lower():
                     continue
@@ -397,7 +423,7 @@ def filas_desde_pdf(pdf_bytes, tipo):
             cols = _detectar_columnas(words)
             lineas.extend(_agrupar_filas(words, cols))
     registros, actual = [], None
-    ancla = re.compile(r"(Nac|Prov)\.?\s*N[°ºo]?\s*\d+", re.I)
+    ancla = re.compile(r"(Nac|Prov)\.?\s*N[°ºo\ufffd]?\s*\d+", re.I)
     for fila in lineas:
         if ancla.search(fila.get("ruta", "")):
             if actual:
@@ -415,7 +441,7 @@ def filas_desde_pdf(pdf_bytes, tipo):
         registros.append(actual)
     filas = []
     for reg in registros:
-        m = re.search(r"(Nac|Prov)\.?\s*N[°ºo]?\s*(\d+)", reg["ruta"], re.I)
+        m = re.search(r"(Nac|Prov)\.?\s*N[°ºo\ufffd]?\s*(\d+)", reg["ruta"], re.I)
         if not m:
             continue
         tramos = [t for t in reg["_tramos"] if t]
@@ -424,7 +450,7 @@ def filas_desde_pdf(pdf_bytes, tipo):
         refs = limpiar(" ".join(reg["_refs"]))
         estado = mapear_estado(reg.get("estado", ""), reg.get("transit", "") + " " + refs)
         calzada = leer_calzada(refs) or leer_calzada(" ".join(reg["_tramos"]))
-        obs = re.sub(r"\(\s*\d+\s+kil[óo]metros[^)]*\)", "", refs)
+        obs = re.sub(r"\(\s*\d+\s+kil[óo\ufffd]metros[^)]*\)", "", refs)
         obs = re.sub(r"Est\.?\s*calzada:\s*(Bueno\s*-\s*Regular|Regular\s*-\s*Malo|Bueno|Regular|Malo)",
                      "", obs, flags=re.I)
         obs = limpiar(obs) or "Sin novedades."
@@ -678,6 +704,7 @@ def obtener_avisos():
     Si i24 no responde desde la nube, usa Google News como respaldo.
     Deja diagnostico en DIAG_I24 (se ve en el resumen del run)."""
     DIAG_I24.clear()
+    DIAG_I24.append(f"- llave I24_TOKEN: {'configurada' if I24_TOKEN else 'NO configurada'}")
     AVISOS_INFO["max_id"] = 0
     notas, portada_orden = {}, []
     urls = [I24_URL] + [I24_URL + s for s in I24_SECCIONES]
