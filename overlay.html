@@ -126,15 +126,16 @@
   .w-day-icon .ray, .w-day-icon .drop, .w-day-icon .snow, .w-day-icon .fog-line, .w-day-icon .bolt, .w-day-icon .cloud-shape, .w-day-icon .sun-core, .w-day-icon .moon-core { animation: none !important; }
   /* Mitad CLIMA: icono + temperatura maxima estimada, pegados al dia */
   .w-day-clima { min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; overflow: hidden; }
-  .w-day-temps { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; color: #fff; line-height: 1; white-space: nowrap; }
+  .w-day-temps { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; color: #fff; line-height: 1; white-space: nowrap; }
   /* Mitad VIENTO: mismo peso visual que el clima */
-  .w-day-wind { min-height: 0; border-top: 1px solid var(--line); margin: 5px 6px 0; padding-top: 7px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; overflow: hidden; }
-  .wd-dir { display: flex; align-items: center; justify-content: center; gap: 6px; }
-  .wd-icon { width: 19px; height: 19px; color: var(--sky); flex-shrink: 0; }
-  .wd-arrow { width: 18px; height: 18px; color: var(--orange); flex-shrink: 0; }
-  .wd-vel { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 24px; color: #fff; line-height: 1; white-space: nowrap; }
-  .wd-vel small { font-size: 11px; color: var(--muted); font-family: 'Barlow', sans-serif; font-weight: 600; }
-  .wd-raf { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 13px; color: var(--orange); letter-spacing: .3px; white-space: nowrap; }
+  .w-day-wind { min-height: 0; border-top: 1px solid var(--line); margin: 5px 6px 0; padding-top: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; overflow: hidden; }
+  .wd-dir { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 1px; }
+  .wd-icon { width: 23px; height: 23px; color: var(--sky); flex-shrink: 0; }
+  .wd-arrow { width: 22px; height: 22px; color: var(--orange); flex-shrink: 0; }
+  .wd-vel { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; color: #fff; line-height: 1; white-space: nowrap; }
+  .wd-unit { font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 10.5px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; line-height: 1; }
+  .wd-raf-label { font-family: 'Barlow', sans-serif; font-weight: 800; font-size: 10.5px; color: var(--orange); letter-spacing: 1.4px; line-height: 1; margin-top: 3px; }
+  .wd-raf { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 24px; color: var(--orange); line-height: 1; white-space: nowrap; }
   .w-error { color: #ff8a80 !important; }
 
   .weather-svg * { transform-box: fill-box; transform-origin: center; }
@@ -257,7 +258,7 @@
    de abajo y NUNCA queda en blanco al aire.
    ============================================================ */
 const PARTE_URL = "parte.json"; // mismo sitio (Netlify): sin CORS. Si usas el archivo local, pone la URL completa.
-const REFRESH_PARTE_MIN = 120; // cada 2 horas (igual que el robot)
+const REFRESH_PARTE_MIN = 30; // revisa cada 30 min: cualquier corrida del robot se refleja rapido
 
 const CONFIG_PARTE = {
   // Datos de RESPALDO (fallback). El robot los reemplaza al vuelo con parte.json.
@@ -462,8 +463,9 @@ const SEGUNDOS_ROTACION_FILAS = 10;
       : '';
     return `<div class="w-day-wind">
       <div class="wd-dir">${icono}${flecha}</div>
-      <div class="wd-vel">${vel}<small> km/h</small></div>
-      ${raf != null ? `<div class="wd-raf">Ráf. ${raf}</div>` : ''}
+      <div class="wd-vel">${vel}</div>
+      <div class="wd-unit">km/h</div>
+      ${raf != null ? `<div class="wd-raf-label">RÁF</div><div class="wd-raf">${raf}</div>` : ''}
     </div>`;
   }
   function setText(id, value) { document.getElementById(id).textContent = value; }
@@ -657,7 +659,7 @@ const SEGUNDOS_ROTACION_FILAS = 10;
   // Inmune a los reinicios de las animaciones CSS (mostrar/ocultar la cara,
   // recarga de datos): conserva la posicion y asi pasan SIEMPRE todas las
   // noticias. Velocidad de lectura constante.
-  const TICKER_PX_SEG = 85;    // px por segundo (mas bajo = mas lento)
+  const TICKER_PX_SEG = 68;    // px por segundo (mas bajo = mas lento)
   let tkPos = 0, tkCopyW = 0, tkLast = null;
   function medirTicker() {
     tkCopyW = document.getElementById('tickerTrack').scrollWidth / 2;
