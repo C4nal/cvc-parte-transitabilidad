@@ -56,6 +56,8 @@ MAX_FILAS = 18
 CANT_AVISOS = 10
 # Titulares i24: se toman los mas NUEVOS (por id de nota en la URL).
 AVISOS_VENTANA = 16          # ventana de las N notas mas nuevas de donde elegir
+PORTADA_PRIMERAS = 8         # respetar el ORDEN de la portada para las primeras N notas
+#   (lo que el editor puso arriba va primero en el ticker; el resto, por id)
 PRIORIZAR_LOCALES = False    # False = estrictamente las mas nuevas (sin sesgo local)
 #   (poner True = dentro de lo reciente, poner primero las locales de Santa Cruz)
 LOCALES = ["santa cruz", "caleta", "caleta olivia", "rio gallegos", "río gallegos",
@@ -70,6 +72,8 @@ HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml,application/pdf,*/*",
     "Accept-Language": "es-AR,es;q=0.9,en;q=0.6",
     "Referer": "https://www.google.com/",
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache",
 }
 TZ_AR = timezone(timedelta(hours=-3))
 
@@ -85,6 +89,7 @@ OBS_TRIGGERS = ["Calzada", "Banquina", "Banquinas", "Presencia", "Animales", "So
 ESTADO_WORDS = ("HABILITADA", "RESTRINGIDA", "CORTE TOTAL")
 
 DIAG_I24 = []   # diagnostico de los titulares (se muestra en el Summary)
+AVISOS_INFO = {"max_id": 0}  # id mas nuevo visto en la ultima recoleccion
 
 
 # ============================================================
@@ -596,9 +601,11 @@ def curar(filas_nac, filas_prov):
 # Titulares i24
 # ============================================================
 def _extraer_notas(html_txt):
-    """Devuelve {id_nota: titulo} de una pagina de i24 (id mas alto = mas nueva)."""
+    """Devuelve [(id, titulo)] EN EL ORDEN en que aparecen en la pagina
+    (el orden de la portada = el orden editorial). Dedup por id, y ante
+    titulos repetidos se queda con el mas largo."""
     soup = BeautifulSoup(html_txt, "lxml")
-    notas = {}
+    orden, titulos = [], {}
     for a in soup.select('a[href*="/contenido/"]'):
         m = re.search(r"/contenido/(\d+)", a.get("href", ""))
         if not m:
@@ -607,9 +614,11 @@ def _extraer_notas(html_txt):
         titulo = limpiar(a.get_text())
         if len(titulo) < 25:
             continue
-        if cid not in notas or len(titulo) > len(notas[cid]):
-            notas[cid] = titulo
-    return notas
+        if cid not in titulos:
+            orden.append(cid)
+        if len(titulo) > len(titulos.get(cid, "")):
+            titulos[cid] = titulo
+    return [(cid, titulos[cid]) for cid in orden]
 
 
 def _avisos_google_news():
@@ -669,15 +678,19 @@ def obtener_avisos():
     Si i24 no responde desde la nube, usa Google News como respaldo.
     Deja diagnostico en DIAG_I24 (se ve en el resumen del run)."""
     DIAG_I24.clear()
-    notas = {}
+    AVISOS_INFO["max_id"] = 0
+    notas, portada_orden = {}, []
     urls = [I24_URL] + [I24_URL + s for s in I24_SECCIONES]
     for url in urls:
         err = ""
         for _ in (1, 2):                 # 2 intentos por pagina
             try:
                 nuevas = _extraer_notas(http_get(url))
-                for cid, tt in nuevas.items():
-                    notas.setdefault(cid, tt)
+                if url == I24_URL and not portada_orden:
+                    portada_orden = nuevas
+                for cid, tt in nuevas:
+                    if cid not in notas or len(tt) > len(notas[cid]):
+                        notas[cid] = tt
                 DIAG_I24.append(f"- {url}: OK, {len(nuevas)} notas")
                 err = ""
                 break
@@ -688,9 +701,14 @@ def obtener_avisos():
             DIAG_I24.append(f"- {url}: ERROR {err}")
 
     if notas:
-        ids = sorted(notas, reverse=True)
-        ventana = [notas[i] for i in ids[:AVISOS_VENTANA]]
-        DIAG_I24.append(f"- {len(notas)} notas unicas; ids mas nuevos: {ids[:AVISOS_VENTANA]}")
+        AVISOS_INFO["max_id"] = max(notas)
+        # 1) las primeras de la PORTADA, en el orden que las puso el editor
+        destacadas = [tt for _, tt in portada_orden[:PORTADA_PRIMERAS]]
+        # 2) el resto, de la mas nueva a la mas vieja (por id)
+        resto = [notas[i] for i in sorted(notas, reverse=True) if notas[i] not in destacadas]
+        ventana = (destacadas + resto)[:AVISOS_VENTANA + PORTADA_PRIMERAS]
+        DIAG_I24.append(f"- {len(notas)} notas unicas; id mas nuevo: {AVISOS_INFO['max_id']}; "
+                        f"portada (orden editorial): {[c for c, _ in portada_orden[:PORTADA_PRIMERAS]]}")
     else:
         ventana = _avisos_google_news()
     if not ventana:
@@ -803,6 +821,17 @@ def main():
     if not avisos_ok:
         avisos = previo.get("avisos", ["Informacion actualizada."])
 
+    # Guardian de frescura: si i24 respondio con una pagina CACHEADA mas vieja
+    # que lo ya publicado (id mas nuevo menor), se mantienen los titulares
+    # anteriores en vez de retroceder en el tiempo.
+    prev_max = previo.get("avisos_max_id", 0) or 0
+    avisos_max_id = AVISOS_INFO["max_id"] or prev_max
+    if avisos_ok and AVISOS_INFO["max_id"] and prev_max and AVISOS_INFO["max_id"] < prev_max:
+        avisos = previo.get("avisos", avisos)
+        avisos_max_id = prev_max
+        DIAG_I24.append(f"- CACHE VIEJO: id mas nuevo {AVISOS_INFO['max_id']} < {prev_max} ya publicado; "
+                        "se mantienen los titulares anteriores")
+
     ahora = datetime.now(TZ_AR)
     salida = {
         "actualizado": ahora.strftime("%d/%m/%Y %H:%M"),
@@ -816,6 +845,7 @@ def main():
         "fuente_provincial": partes["Provincial"]["origen"] if rutas_ok else previo.get("fuente_provincial", "-"),
         "filas": filas,
         "avisos": avisos,
+        "avisos_max_id": avisos_max_id,
     }
     if filas or avisos:
         with open("parte.json", "w", encoding="utf-8") as f:
