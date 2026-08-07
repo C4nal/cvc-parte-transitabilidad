@@ -1,7 +1,7 @@
 {
-  "actualizado": "06/08/2026 20:29",
-  "fecha_parte_nacional": "06/08 16:00",
-  "fecha_parte_provincial": "06/08 16:00",
+  "actualizado": "06/08/2026 21:02",
+  "fecha_parte_nacional": "06/08 21:00",
+  "fecha_parte_provincial": "06/08 21:00",
   "fuente_nacional": "htm",
   "fuente_provincial": "htm",
   "filas": [
@@ -35,7 +35,7 @@
       "tramo": "Los Antiguos / Perito Moreno",
       "estado": "EXTREMA",
       "calzada": "Bueno-Regular",
-      "observaciones": "Animales sueltos Presencia de escarcha. Banquina inestable."
+      "observaciones": "Animales sueltos Presencia de escarcha. Banquina inestable Visibilidad reducida por lluvia."
     },
     {
       "ruta": "RP 81",
