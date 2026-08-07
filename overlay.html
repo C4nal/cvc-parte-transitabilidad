@@ -54,7 +54,7 @@
     --yellow: #ffd34d;
     --red: #ff4b5f;
     --overlay-height: 212px;
-    --weather-width: 232px;
+    --weather-width: 260px;
   }
 
   /* ------------------------------------------------------------
@@ -116,24 +116,25 @@
   .w-stat-value { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; color: #fff; line-height: 1; text-align: right; justify-self: end; white-space: nowrap; }
   .w-stat-value.wind { font-size: 28px; }
   .w-stat-value small { font-size: 13px; color: var(--muted); font-family: 'Barlow', sans-serif; font-weight: 600; }
-  .w-forecast { padding: 26px 16px 28px; flex: 1; min-height: 0; display: flex; flex-direction: column; }
-  .w-forecast-title { font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 14px; color: var(--muted); letter-spacing: 2px; margin-bottom: 18px; flex-shrink: 0; }
-  .w-forecast-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
-  .w-day { height: 100%; background: var(--panel); padding: 12px 4px 12px; display: grid; grid-template-rows: auto auto auto 1fr; place-items: center; row-gap: 7px; text-align: center; }
+  .w-forecast { padding: 16px 12px 16px; flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .w-forecast-title { font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 13px; color: var(--muted); letter-spacing: 1.6px; margin-bottom: 10px; flex-shrink: 0; }
+  .w-forecast-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
+  .w-day { height: 100%; min-width: 0; background: var(--panel); padding: 10px 4px 10px; display: grid; grid-template-rows: auto 1fr 1fr; text-align: center; overflow: hidden; }
   .w-day-label { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 16px; color: var(--soft); letter-spacing: 1px; line-height: 1; }
-  .w-day-icon { width: 62px; height: 62px; display: flex; align-items: center; justify-content: center; }
-  .w-day-icon svg { width: 58px; height: 58px; display: block; overflow: visible; }
+  .w-day-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
+  .w-day-icon svg { width: 46px; height: 46px; display: block; overflow: visible; }
   .w-day-icon .ray, .w-day-icon .drop, .w-day-icon .snow, .w-day-icon .fog-line, .w-day-icon .bolt, .w-day-icon .cloud-shape, .w-day-icon .sun-core, .w-day-icon .moon-core { animation: none !important; }
-  .w-day-temps { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 27px; color: #fff; line-height: 1; width: 100%; text-align: center; }
-  .w-day-temps .min { font-weight: 600; font-size: 21px; color: var(--muted); }
-  .w-day-wind { align-self: stretch; justify-self: stretch; border-top: 1px solid var(--line); margin: 2px 5px 0; padding-top: 9px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
-  .wd-dir { display: flex; align-items: center; justify-content: center; gap: 4px; font-family: 'Barlow', sans-serif; font-weight: 800; font-size: 15px; letter-spacing: .5px; color: #fff; }
-  .wd-icon { width: 16px; height: 16px; color: var(--sky); flex-shrink: 0; }
-  .wd-arrow { width: 15px; height: 15px; color: var(--orange); flex-shrink: 0; }
-  .wd-vel { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 27px; color: #fff; line-height: 1; }
-  .wd-vel small { font-size: 13px; color: var(--muted); font-family: 'Barlow', sans-serif; font-weight: 600; }
-  .wd-raf { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 13.5px; color: var(--orange); letter-spacing: .3px; }
-  .wd-raf small { font-size: 11px; color: var(--muted); font-weight: 600; }
+  /* Mitad CLIMA: icono + temperatura maxima estimada, pegados al dia */
+  .w-day-clima { min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; overflow: hidden; }
+  .w-day-temps { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; color: #fff; line-height: 1; white-space: nowrap; }
+  /* Mitad VIENTO: mismo peso visual que el clima */
+  .w-day-wind { min-height: 0; border-top: 1px solid var(--line); margin: 5px 6px 0; padding-top: 7px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; overflow: hidden; }
+  .wd-dir { display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .wd-icon { width: 19px; height: 19px; color: var(--sky); flex-shrink: 0; }
+  .wd-arrow { width: 18px; height: 18px; color: var(--orange); flex-shrink: 0; }
+  .wd-vel { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 24px; color: #fff; line-height: 1; white-space: nowrap; }
+  .wd-vel small { font-size: 11px; color: var(--muted); font-family: 'Barlow', sans-serif; font-weight: 600; }
+  .wd-raf { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 13px; color: var(--orange); letter-spacing: .3px; white-space: nowrap; }
   .w-error { color: #ff8a80 !important; }
 
   .weather-svg * { transform-box: fill-box; transform-origin: center; }
@@ -459,11 +460,10 @@ const SEGUNDOS_ROTACION_FILAS = 10;
     const flecha = deg != null
       ? `<svg class="wd-arrow" viewBox="0 0 24 24" style="transform:rotate(${(deg + 180) % 360}deg)" aria-hidden="true"><path d="M12 3l6 8.5h-4V21h-4V11.5H6z" fill="currentColor"/></svg>`
       : '';
-    const dir = deg != null ? compass(deg) : '';
     return `<div class="w-day-wind">
-      <div class="wd-dir">${icono}${flecha}<span>${dir}</span></div>
+      <div class="wd-dir">${icono}${flecha}</div>
       <div class="wd-vel">${vel}<small> km/h</small></div>
-      ${raf != null ? `<div class="wd-raf">Ráf. ${raf}<small> km/h</small></div>` : ''}
+      ${raf != null ? `<div class="wd-raf">Ráf. ${raf}</div>` : ''}
     </div>`;
   }
   function setText(id, value) { document.getElementById(id).textContent = value; }
@@ -504,13 +504,12 @@ const SEGUNDOS_ROTACION_FILAS = 10;
         const label = i === 1 ? 'MAÑ' : dnames[dd.getDay()].toUpperCase();
         const ddCode = dl.weather_code[i];
         const maxVal = Number.isFinite(dl.temperature_2m_max?.[i]) ? Math.round(dl.temperature_2m_max[i]) + '°' : '—°';
-        const minVal = Number.isFinite(dl.temperature_2m_min?.[i]) ? Math.round(dl.temperature_2m_min[i]) + '°' : '—°';
         const wVal = Number.isFinite(dl.wind_speed_10m_max?.[i]) ? Math.round(dl.wind_speed_10m_max[i]) : null;
         const wRaf = Number.isFinite(dl.wind_gusts_10m_max?.[i]) ? Math.round(dl.wind_gusts_10m_max[i]) : null;
         const wDeg = Number.isFinite(dl.wind_direction_10m_dominant?.[i]) ? Math.round(dl.wind_direction_10m_dominant[i]) : null;
-        items.push(`<div class="w-day"><div class="w-day-label">${label}</div><div class="w-day-icon" style="color:${wmoColor(ddCode)}" aria-hidden="true">${wmoIcon(ddCode, true)}</div><div class="w-day-temps">${maxVal}<span class="min">/${minVal}</span></div>${windDayHtml(wDeg, wVal, wRaf)}</div>`);
+        items.push(`<div class="w-day"><div class="w-day-label">${label}</div><div class="w-day-clima"><div class="w-day-icon" style="color:${wmoColor(ddCode)}" aria-hidden="true">${wmoIcon(ddCode, true)}</div><div class="w-day-temps">${maxVal}</div></div>${windDayHtml(wDeg, wVal, wRaf)}</div>`);
       }
-      while (items.length < 3) items.push(`<div class="w-day"><div class="w-day-label">—</div><div class="w-day-icon" aria-hidden="true">${wmoIcon(2, true)}</div><div class="w-day-temps">—°<span class="min">/—°</span></div><div class="w-day-wind"><div class="wd-dir">—</div></div></div>`);
+      while (items.length < 3) items.push(`<div class="w-day"><div class="w-day-label">—</div><div class="w-day-clima"><div class="w-day-icon" aria-hidden="true">${wmoIcon(2, true)}</div><div class="w-day-temps">—°</div></div><div class="w-day-wind"><div class="wd-dir">—</div></div></div>`);
       document.getElementById('forecastGrid').innerHTML = items.join('');
     } catch (e) {
       console.error('Clima fetch error', e);
@@ -519,7 +518,7 @@ const SEGUNDOS_ROTACION_FILAS = 10;
     }
   }
   document.getElementById('iconMain').innerHTML = wmoIcon(2, true);
-  document.getElementById('forecastGrid').innerHTML = Array(3).fill(0).map(()=>`<div class="w-day"><div class="w-day-label">—</div><div class="w-day-icon" aria-hidden="true">${wmoIcon(2, true)}</div><div class="w-day-temps">—°<span class="min">/—°</span></div><div class="w-day-wind"><div class="wd-dir">—</div></div></div>`).join('');
+  document.getElementById('forecastGrid').innerHTML = Array(3).fill(0).map(()=>`<div class="w-day"><div class="w-day-label">—</div><div class="w-day-clima"><div class="w-day-icon" aria-hidden="true">${wmoIcon(2, true)}</div><div class="w-day-temps">—°</div></div><div class="w-day-wind"><div class="wd-dir">—</div></div></div>`).join('');
   loadWeather();
   setInterval(loadWeather, 30 * 60 * 1000);
 })();
@@ -658,7 +657,7 @@ const SEGUNDOS_ROTACION_FILAS = 10;
   // Inmune a los reinicios de las animaciones CSS (mostrar/ocultar la cara,
   // recarga de datos): conserva la posicion y asi pasan SIEMPRE todas las
   // noticias. Velocidad de lectura constante.
-  const TICKER_PX_SEG = 115;   // px por segundo
+  const TICKER_PX_SEG = 85;    // px por segundo (mas bajo = mas lento)
   let tkPos = 0, tkCopyW = 0, tkLast = null;
   function medirTicker() {
     tkCopyW = document.getElementById('tickerTrack').scrollWidth / 2;
