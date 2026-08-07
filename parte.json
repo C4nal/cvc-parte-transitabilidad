@@ -1,7 +1,7 @@
 {
-  "actualizado": "07/08/2026 06:41",
-  "fecha_parte_nacional": "06/08 21:00",
-  "fecha_parte_provincial": "06/08 21:00",
+  "actualizado": "07/08/2026 09:32",
+  "fecha_parte_nacional": "07/08 08:00",
+  "fecha_parte_provincial": "07/08 08:00",
   "fuente_nacional": "htm",
   "fuente_provincial": "htm",
   "filas": [
@@ -35,7 +35,7 @@
       "tramo": "Los Antiguos / Perito Moreno",
       "estado": "EXTREMA",
       "calzada": "Bueno-Regular",
-      "observaciones": "Animales sueltos Presencia de escarcha. Banquina inestable Visibilidad reducida por lluvia."
+      "observaciones": "Animales sueltos Presencia de escarcha. Banquina inestable Vientos leves."
     },
     {
       "ruta": "RP 81",
@@ -67,7 +67,7 @@
       "tramo": "Limite Provincia de Chubut / Perito Moreno (Emp. R.P Nº 43)",
       "estado": "EXTREMA",
       "calzada": "Bueno-Regular",
-      "observaciones": "Banquinas Inestables / Animales sueltos. Calzada con baches y nieve. Presencia de escarcha."
+      "observaciones": "Banquinas Inestables / Animales sueltos. Calzada con baches y nieve. Vientos leves."
     },
     {
       "ruta": "RN 288",
@@ -152,6 +152,7 @@
   ],
   "avisos": [
     "Santa Cruz reafirma su compromiso con el acceso igualitario a la vivienda",
+    "“Durante muchos años, la compra de luminaria era un negocio para los distintos funcionarios”, sostuvo Vidal al entregar 15.000 luminarias LED a los municipios",
     "Casación confirmó el procesamiento de Julio De Vido y su esposa por enriquecimiento ilícito",
     "El Municipio de Rio Gallegos y Vialidad Nacional logran consenso para avanzan en un plan de trabajo conjunto",
     "ANMAT prohíbe dos lotes de medicamentos desinflamantes de la firma Gramon Millet S.A.",
@@ -159,7 +160,6 @@
     "Presentaron el nuevo Sistema de Guía de Tránsito Electrónica",
     "Educación: Entrega de libros en escuelas primarias con una nueva jornada en el Colegio Salesiano",
     "6 de agosto: Día de la Enseñanza Agropecuaria",
-    "La Corte Suprema aprobó su presupuesto 2027 y reclamó al Gobierno mayores recursos",
-    "Condenaron en Estados Unidos al empresario que financió la campaña presidencial de José Luis Espert en 2019"
+    "La Corte Suprema aprobó su presupuesto 2027 y reclamó al Gobierno mayores recursos"
   ]
 }
