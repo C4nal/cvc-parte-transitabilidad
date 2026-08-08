@@ -1,7 +1,7 @@
 {
-  "actualizado": "08/08/2026 08:18",
-  "fecha_parte_nacional": "08/08 08:00",
-  "fecha_parte_provincial": "08/08 08:00",
+  "actualizado": "08/08/2026 11:10",
+  "fecha_parte_nacional": "08/08 09:40",
+  "fecha_parte_provincial": "08/08 09:40",
   "fuente_nacional": "htm",
   "fuente_provincial": "htm",
   "filas": [
@@ -57,9 +57,9 @@
       "ruta": "RP 17",
       "tipo": "Provincial",
       "tramo": "Emp. R.N. N° 288 / Emp. R.P. Nº 65",
-      "estado": "INFORMACION",
+      "estado": "PRECAUCION",
       "calzada": "Bueno-Regular",
-      "observaciones": "Calzada con barro / Acumulación de barro. Calzada con cortes y desvios."
+      "observaciones": "Animales sueltos Calzada con barro / Acumulación de barro. Calzada con cortes y desvios."
     },
     {
       "ruta": "RN 40",
@@ -73,9 +73,9 @@
       "ruta": "RN 288",
       "tipo": "Nacional",
       "tramo": "Pto. Punta Quilla / Pto. Santa Cruz",
-      "estado": "INFORMACION",
+      "estado": "EXTREMA",
       "calzada": "Bueno-Regular",
-      "observaciones": "Presencia de escarcha."
+      "observaciones": "Animales sueltos Presencia de escarcha."
     },
     {
       "ruta": "RN 40",
