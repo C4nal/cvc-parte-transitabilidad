@@ -255,7 +255,7 @@
   .ticker-label { flex: 0 0 112px; height: 100%; display: grid; place-items: center; background: rgba(10,10,10,.86); border-right: 1px solid rgba(255,255,255,.13); }
   .ticker-logo { display: block; width: 92px; height: 38px; object-fit: contain; filter: drop-shadow(0 0 6px rgba(255,148,34,.32)); animation: i24Appear 3.4s ease-in-out infinite; }
   .ticker-viewport { flex: 1 1 auto; min-width: 0; height: 100%; overflow: hidden; padding-left: 18px; display: flex; align-items: center; }
-  .ticker-track { display: flex; min-width: 200%; height: 24px; align-items: center; will-change: transform; font-family: 'Alte Haas Grotesk', 'Barlow', sans-serif; font-weight: 700; font-size: 22px; line-height: 24px; letter-spacing: .8px; color: #fff; text-transform: uppercase; white-space: nowrap; }
+  .ticker-track { display: flex; height: 24px; align-items: center; will-change: transform; font-family: 'Alte Haas Grotesk', 'Barlow', sans-serif; font-weight: 700; font-size: 22px; line-height: 24px; letter-spacing: .8px; color: #fff; text-transform: uppercase; white-space: nowrap; }
   .ticker-track span { padding-right: 78px; }
 </style>
 </head>
@@ -754,9 +754,20 @@ const SEG_PAUSA_SCROLL = 1.5;   // pausa quieta antes y despues de deslizar
   // recarga de datos): conserva la posicion y asi pasan SIEMPRE todas las
   // noticias. Velocidad de lectura constante.
   const TICKER_PX_SEG = 65;    // px por segundo (mas bajo = mas lento)
-  let tkPos = 0, tkCopyW = 0, tkLast = null;
+  let tkPos = 0, tkCopyW = 0, tkLast = null, tkUnidad = '', tkCopias = 2;
   function medirTicker() {
-    tkCopyW = document.getElementById('tickerTrack').scrollWidth / 2;
+    const el = document.getElementById('tickerTrack');
+    let unidad = el.scrollWidth / tkCopias;
+    const vw = el.parentElement ? el.parentElement.clientWidth : 0;
+    // Si el contenido es corto (p. ej. un solo aviso institucional), se
+    // repite las veces necesarias para que el scroll sea CONSTANTE,
+    // sin huecos ni cortes, sea cual sea el largo del texto.
+    if (unidad > 0 && vw > 0 && (tkCopias - 1) * unidad < vw + 60) {
+      tkCopias = Math.ceil((vw + 60) / unidad) + 1;
+      el.innerHTML = tkUnidad.repeat(tkCopias);
+      unidad = el.scrollWidth / tkCopias;
+    }
+    tkCopyW = unidad || 0;
     return tkCopyW;
   }
   function cicloTickerMs() {
@@ -778,9 +789,10 @@ const SEG_PAUSA_SCROLL = 1.5;   // pausa quieta antes y despues de deslizar
   }
   function paintTicker() {
     const avisos = cfg.avisos && cfg.avisos.length ? cfg.avisos : ['Información actualizada.'];
-    const html = avisos.map(a => `<span>${escapeHtml(a)}</span>`).join('');
+    tkUnidad = avisos.map(a => `<span>${escapeHtml(a)}</span>`).join('');
     const el = document.getElementById('tickerTrack');
-    el.innerHTML = html + html;
+    tkCopias = 2;
+    el.innerHTML = tkUnidad.repeat(2);
     tkPos = 0; tkCopyW = 0;
     el.style.transform = 'translateX(0)';
   }
