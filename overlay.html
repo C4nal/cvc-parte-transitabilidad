@@ -36,6 +36,12 @@
     font-weight: 700;
     font-display: swap;
   }
+  @font-face {
+    font-family: 'Alte Haas Grotesk';
+    src: url('alte-haas-regular.ttf') format('truetype');
+    font-weight: 400;
+    font-display: swap;
+  }
   * { box-sizing: border-box; }
   html, body {
     margin: 0;
@@ -122,26 +128,26 @@
   .w-stat-value { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 36px; color: #fff; line-height: 1; text-align: right; justify-self: end; white-space: nowrap; }
   .w-stat-value.wind { font-size: 36px; }
   .w-stat-value small { font-size: 15px; color: var(--muted); font-family: 'Barlow', sans-serif; font-weight: 600; }
-  .w-forecast { padding: 16px 12px 16px; flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
-  .w-forecast-title { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 16px; color: var(--muted); letter-spacing: 1.8px; margin-bottom: 12px; flex-shrink: 0; }
-  .w-forecast-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; align-content: start; }
-  .w-day { height: 100%; min-width: 0; background: var(--panel); padding: 10px 4px 10px; display: grid; grid-template-rows: auto auto auto; row-gap: 3px; text-align: center; overflow: hidden; }
-  .w-day-label { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 17px; color: var(--soft); letter-spacing: 1px; line-height: 1; }
+  .w-forecast { padding: 14px 12px 10px; flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .w-forecast-title { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 17px; color: var(--muted); letter-spacing: 1.8px; margin-bottom: 12px; flex-shrink: 0; }
+  .w-forecast-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
+  .w-day { height: 100%; min-width: 0; background: var(--panel); padding: 10px 4px 10px; display: grid; grid-template-rows: auto auto 1fr; row-gap: 3px; text-align: center; overflow: hidden; }
+  .w-day-label { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 18px; color: var(--soft); letter-spacing: 1px; line-height: 1; }
   .w-day-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
   .w-day-icon svg { width: 46px; height: 46px; display: block; overflow: visible; }
   .w-day-icon .ray, .w-day-icon .drop, .w-day-icon .snow, .w-day-icon .fog-line, .w-day-icon .bolt, .w-day-icon .cloud-shape, .w-day-icon .sun-core, .w-day-icon .moon-core { animation: none !important; }
   /* Mitad CLIMA: icono + temperatura maxima estimada, pegados al dia */
   .w-day-clima { min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; overflow: hidden; }
-  .w-day-temps { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 32px; color: #fff; line-height: 1; white-space: nowrap; }
+  .w-day-temps { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 34px; color: #fff; line-height: 1; white-space: nowrap; }
   /* Mitad VIENTO: mismo peso visual que el clima */
   .w-day-wind { justify-self: stretch; border-top: 1px solid var(--line); margin: 3px 6px 0; padding-top: 8px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 3px; }
   .wd-dir { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 1px; }
-  .wd-icon { width: 24px; height: 24px; color: var(--sky); flex-shrink: 0; }
-  .wd-arrow { width: 23px; height: 23px; color: var(--orange); flex-shrink: 0; }
-  .wd-vel { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 32px; color: #fff; line-height: 1; white-space: nowrap; }
-  .wd-unit { font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 11.5px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; line-height: 1; }
-  .wd-raf-label { font-family: 'Barlow', sans-serif; font-weight: 800; font-size: 11.5px; color: var(--orange); letter-spacing: 1.4px; line-height: 1; margin-top: 3px; }
-  .wd-raf { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; color: var(--orange); line-height: 1; white-space: nowrap; }
+  .wd-icon { width: 26px; height: 26px; color: var(--sky); flex-shrink: 0; }
+  .wd-arrow { width: 25px; height: 25px; color: var(--orange); flex-shrink: 0; }
+  .wd-vel { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 34px; color: #fff; line-height: 1; white-space: nowrap; }
+  .wd-unit { font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 12.5px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; line-height: 1; }
+  .wd-raf-label { font-family: 'Barlow', sans-serif; font-weight: 800; font-size: 12.5px; color: var(--orange); letter-spacing: 1.4px; line-height: 1; margin-top: 3px; }
+  .wd-raf { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 28px; color: var(--orange); line-height: 1; white-space: nowrap; }
   .w-error { color: #ff8a80 !important; }
 
   .weather-svg * { transform-box: fill-box; transform-origin: center; }
@@ -219,9 +225,9 @@
   .table-wrap { grid-column: 2/3; grid-row: 1/2; min-width: 0; border: 1px solid rgba(255,255,255,.11); border-radius: 17px; overflow: hidden; }
   table { width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; }
   thead tr { background: rgba(30,91,255,.22); }
-  th { height: 28px; font-size: 15px; color: #8ea2d7; text-transform: uppercase; letter-spacing: 1.8px; font-weight: 800; text-align: left; padding: 0 12px; border-right: 1px solid rgba(255,255,255,.08); }
+  th { height: 28px; font-family: 'Alte Haas Grotesk', 'Barlow', sans-serif; font-size: 15px; color: #8ea2d7; text-transform: uppercase; letter-spacing: 1.8px; font-weight: 800; text-align: left; padding: 0 12px; border-right: 1px solid rgba(255,255,255,.08); }
   th:last-child { border-right: 0; }
-  td { height: 27px; font-size: 20px; color: #fff; padding: 0 12px; border-top: 1px solid rgba(255,255,255,.085); border-right: 1px solid rgba(255,255,255,.06); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; vertical-align: middle; }
+  td { height: 27px; font-family: 'Alte Haas Grotesk', 'Barlow', sans-serif; font-size: 20px; color: #fff; padding: 0 12px; border-top: 1px solid rgba(255,255,255,.085); border-right: 1px solid rgba(255,255,255,.06); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; vertical-align: middle; }
   td:last-child { border-right: 0; }
   tbody tr:nth-child(even) { background: rgba(255,255,255,.035); }
   tbody tr.alert { background: rgba(255,75,95,.14); }
@@ -238,6 +244,7 @@
   .obs-track { display: inline-flex; align-items: center; min-width: max-content; white-space: nowrap; }
   .obs-track span { padding-right: 64px; }
   .obs-scroll .obs-track { animation: obsScroll 26s ease-in-out infinite; }
+  .tramo-col { padding: 0; }
   .chip { display: inline-flex; align-items: center; justify-content: center; height: 23px; min-width: 112px; padding: 0 10px; border-radius: 999px; font-size: 15px; font-weight: 900; letter-spacing: 1.1px; text-transform: uppercase; color: #061026; }
   .chip.ok { background: var(--green); }
   .chip.precaucion { background: var(--yellow); color: #1e1a02; }
@@ -619,6 +626,7 @@ const SEGUNDOS_ROTACION_FILAS = 10;
   function normalize(s) { return (s || '').toString().toLowerCase().replace(/[áàä]/g,'a').replace(/[éèë]/g,'e').replace(/[íìï]/g,'i').replace(/[óòö]/g,'o').replace(/[úùü]/g,'u').replace(/ñ/g,'n'); }
   function escapeHtml(v) { return (v ?? '').toString().replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   function isLongObs(v) { return (v ?? '').toString().length > 28; }
+  function isLongTramo(v) { return (v ?? '').toString().length > 30; }
   function statusClass(estado) {
     const e = normalize(estado);
     if (e.includes('cort')) return 'cortado';
@@ -642,7 +650,9 @@ const SEGUNDOS_ROTACION_FILAS = 10;
       return `<tr class="${klass}">
         <td class="route">${escapeHtml(r.ruta)}</td>
         <td class="type">${escapeHtml(r.tipo)}</td>
-        <td>${escapeHtml(r.tramo)}</td>
+        <td class="tramo-col ${isLongTramo(r.tramo) ? 'obs-scroll' : ''}">
+          <div class="obs-viewport"><div class="obs-track"><span>${escapeHtml(r.tramo)}</span><span>${escapeHtml(r.tramo)}</span></div></div>
+        </td>
         <td><span class="chip ${chip}">${escapeHtml(r.estado)}</span></td>
         <td class="surface">${escapeHtml(r.calzada)}</td>
         <td class="obs ${isLongObs(r.observaciones) ? 'obs-scroll' : ''}">
