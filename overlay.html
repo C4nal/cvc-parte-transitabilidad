@@ -80,10 +80,6 @@
      ------------------------------------------------------------ */
 
   @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  @keyframes obsScroll {
-    0%, 12% { transform: translateX(0); }
-    88%, 100% { transform: translateX(calc(-50% - 32px)); }
-  }
   @keyframes tidePulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
   @keyframes i24Appear { 0% { opacity: 0; transform: scale(.82); } 14% { opacity: 1; transform: scale(1); } 72% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.08); } }
   @keyframes scanSweep { from { transform: translateX(-140%); } to { transform: translateX(140%); } }
@@ -128,13 +124,18 @@
   .w-stat-value { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 36px; color: #fff; line-height: 1; text-align: right; justify-self: end; white-space: nowrap; }
   .w-stat-value.wind { font-size: 36px; }
   .w-stat-value small { font-size: 15px; color: var(--muted); font-family: 'Barlow', sans-serif; font-weight: 600; }
-  .w-forecast { padding: 14px 12px 10px; flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
-  .w-forecast-title { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 17px; color: var(--muted); letter-spacing: 1.8px; margin-bottom: 12px; flex-shrink: 0; }
+  .w-forecast { padding: 0 12px 8px; flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .w-forecast-title { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 20px; color: var(--muted); letter-spacing: 1.8px; margin-bottom: 8px; flex-shrink: 0; }
+  .w-moon { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; gap: 14px; padding: 10px 4px 10px; border-bottom: 1px solid var(--line); margin-bottom: 10px; }
+  .moon-svg { width: 54px; height: 54px; flex-shrink: 0; filter: drop-shadow(0 0 10px rgba(232,238,252,.16)); }
+  .moon-info { text-align: left; min-width: 0; }
+  .moon-name { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 19px; color: #fff; line-height: 1.15; }
+  .moon-pct { font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 14px; color: var(--muted); margin-top: 3px; }
   .w-forecast-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
-  .w-day { height: 100%; min-width: 0; background: var(--panel); padding: 10px 4px 10px; display: grid; grid-template-rows: auto auto 1fr; row-gap: 3px; text-align: center; overflow: hidden; }
+  .w-day { height: 100%; min-width: 0; background: var(--panel); padding: 8px 4px 8px; display: grid; grid-template-rows: auto auto 1fr; row-gap: 3px; text-align: center; overflow: hidden; }
   .w-day-label { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 18px; color: var(--soft); letter-spacing: 1px; line-height: 1; }
-  .w-day-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
-  .w-day-icon svg { width: 46px; height: 46px; display: block; overflow: visible; }
+  .w-day-icon { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+  .w-day-icon svg { width: 42px; height: 42px; display: block; overflow: visible; }
   .w-day-icon .ray, .w-day-icon .drop, .w-day-icon .snow, .w-day-icon .fog-line, .w-day-icon .bolt, .w-day-icon .cloud-shape, .w-day-icon .sun-core, .w-day-icon .moon-core { animation: none !important; }
   /* Mitad CLIMA: icono + temperatura maxima estimada, pegados al dia */
   .w-day-clima { min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; overflow: hidden; }
@@ -225,27 +226,25 @@
   .table-wrap { grid-column: 2/3; grid-row: 1/2; min-width: 0; border: 1px solid rgba(255,255,255,.11); border-radius: 17px; overflow: hidden; }
   table { width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; }
   thead tr { background: rgba(30,91,255,.22); }
-  th { height: 28px; font-family: 'Alte Haas Grotesk', 'Barlow', sans-serif; font-size: 15px; color: #8ea2d7; text-transform: uppercase; letter-spacing: 1.8px; font-weight: 800; text-align: left; padding: 0 12px; border-right: 1px solid rgba(255,255,255,.08); }
+  th { height: 30px; font-family: 'Alte Haas Grotesk', 'Barlow', sans-serif; font-size: 17px; color: #8ea2d7; text-transform: uppercase; letter-spacing: 1.8px; font-weight: 800; text-align: left; padding: 0 12px; border-right: 1px solid rgba(255,255,255,.08); }
   th:last-child { border-right: 0; }
-  td { height: 27px; font-family: 'Alte Haas Grotesk', 'Barlow', sans-serif; font-size: 20px; color: #fff; padding: 0 12px; border-top: 1px solid rgba(255,255,255,.085); border-right: 1px solid rgba(255,255,255,.06); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; vertical-align: middle; }
+  td { height: 28px; font-family: 'Alte Haas Grotesk', 'Barlow', sans-serif; font-size: 22px; color: #fff; padding: 0 12px; border-top: 1px solid rgba(255,255,255,.085); border-right: 1px solid rgba(255,255,255,.06); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; vertical-align: middle; }
   td:last-child { border-right: 0; }
   tbody tr:nth-child(even) { background: rgba(255,255,255,.035); }
   tbody tr.alert { background: rgba(255,75,95,.14); }
   tbody tr.extreme { background: rgba(255,75,95,.09); }
   tbody tr.caution { background: rgba(255,148,34,.11); }
-  .route { font-family: 'Barlow Condensed'; font-weight: 900; font-size: 28px; letter-spacing: .5px; }
-  .type { color: #c5d0f4; font-size: 18px; }
+  .route { font-family: 'Barlow Condensed'; font-weight: 900; font-size: 30px; letter-spacing: .5px; }
+  .type { color: #c5d0f4; font-size: 20px; }
   .surface { color: #e7edff; }
-  .obs { color: #b7c4ef; font-size: 18px; padding: 0; }
-  .obs-viewport { width: 100%; height: 27px; display: flex; align-items: center; overflow: hidden; padding: 0 12px; position: relative; }
+  .obs { color: #b7c4ef; font-size: 20px; padding: 0; }
+  .obs-viewport { width: 100%; height: 28px; display: flex; align-items: center; overflow: hidden; padding: 0 12px; position: relative; }
   .obs-viewport::before, .obs-viewport::after { content: ''; position: absolute; top: 0; bottom: 0; width: 22px; z-index: 2; pointer-events: none; }
   .obs-viewport::before { left: 0; background: linear-gradient(90deg, rgba(10,19,48,.92), transparent); }
   .obs-viewport::after { right: 0; background: linear-gradient(270deg, rgba(10,19,48,.92), transparent); }
-  .obs-track { display: inline-flex; align-items: center; min-width: max-content; white-space: nowrap; }
-  .obs-track span { padding-right: 64px; }
-  .obs-scroll .obs-track { animation: obsScroll 26s ease-in-out infinite; }
+  .obs-viewport .slide { display: inline-block; white-space: nowrap; }
   .tramo-col { padding: 0; }
-  .chip { display: inline-flex; align-items: center; justify-content: center; height: 23px; min-width: 112px; padding: 0 10px; border-radius: 999px; font-size: 15px; font-weight: 900; letter-spacing: 1.1px; text-transform: uppercase; color: #061026; }
+  .chip { display: inline-flex; align-items: center; justify-content: center; height: 25px; min-width: 118px; padding: 0 11px; border-radius: 999px; font-size: 17px; font-weight: 900; letter-spacing: 1.1px; text-transform: uppercase; color: #061026; }
   .chip.ok { background: var(--green); }
   .chip.precaucion { background: var(--yellow); color: #1e1a02; }
   .chip.extrema { background: var(--orange); color: #170b00; }
@@ -306,8 +305,9 @@ const CONFIG_PARTE = {
 
 const DURACION_MAREAS_SEG = 13;
 const DURACION_RUTAS_SEG = 420; // minimo 7 minutos; si el ciclo de paginas o del ticker de noticias tarda mas, se extiende solo
-const FILAS_VISIBLES = 2;
-const SEGUNDOS_ROTACION_FILAS = 10;
+const SEG_LECTURA_FILA = 9;     // permanencia minima de cada ruta en pantalla
+const VEL_SCROLL_CELDA = 42;    // px/seg del deslizamiento de tramo/observaciones
+const SEG_PAUSA_SCROLL = 1.5;   // pausa quieta antes y despues de deslizar
 </script>
 
 <div class="stage" id="stage">
@@ -327,6 +327,7 @@ const SEGUNDOS_ROTACION_FILAS = 10;
       <div class="w-stat" style="--accent: var(--pink)"><span class="w-stat-label">MÁX / MÍN</span><span class="w-stat-value"><span id="maxTxt">—</span>°/<span id="minTxt">—</span>°</span></div>
     </section>
     <section class="w-forecast">
+      <div class="w-moon" id="moonBox"></div>
       <div class="w-forecast-title">PRÓXIMOS DÍAS</div>
       <div class="w-forecast-grid" id="forecastGrid"></div>
     </section>
@@ -533,6 +534,37 @@ const SEGUNDOS_ROTACION_FILAS = 10;
   }
   document.getElementById('iconMain').innerHTML = wmoIcon(2, true);
   document.getElementById('forecastGrid').innerHTML = Array(3).fill(0).map(()=>`<div class="w-day"><div class="w-day-label">—</div><div class="w-day-clima"><div class="w-day-icon" aria-hidden="true">${wmoIcon(2, true)}</div><div class="w-day-temps">—°</div></div><div class="w-day-wind"><div class="wd-dir">—</div></div></div>`).join('');
+  function pintarLuna() {
+    // Fase lunar calculada localmente (mes sinodico desde la luna nueva de
+    // referencia del 06/01/2000 18:14 UTC). No necesita internet.
+    const SINODICO = 29.530588853;
+    const ref = Date.UTC(2000, 0, 6, 18, 14);
+    const edad = ((Date.now() - ref) / 86400000) % SINODICO;
+    const p = edad / SINODICO;                 // 0 = nueva, 0.5 = llena
+    const ilum = Math.round((1 - Math.cos(2 * Math.PI * p)) / 2 * 100);
+    let nombre;
+    if (p < 0.03 || p > 0.97) nombre = 'Luna nueva';
+    else if (p < 0.22) nombre = 'Luna creciente';
+    else if (p < 0.28) nombre = 'Cuarto creciente';
+    else if (p < 0.47) nombre = 'Gibosa creciente';
+    else if (p < 0.53) nombre = 'Luna llena';
+    else if (p < 0.72) nombre = 'Gibosa menguante';
+    else if (p < 0.78) nombre = 'Cuarto menguante';
+    else nombre = 'Luna menguante';
+    const c = Math.cos(2 * Math.PI * p);
+    const rx = (Math.abs(c) * 45).toFixed(1);
+    const d = (p <= 0.5)
+      ? `M50 5 A45 45 0 0 1 50 95 A${rx} 45 0 0 ${c > 0 ? 0 : 1} 50 5 Z`
+      : `M50 5 A45 45 0 0 0 50 95 A${rx} 45 0 0 ${c > 0 ? 1 : 0} 50 5 Z`;
+    document.getElementById('moonBox').innerHTML =
+      `<svg viewBox="0 0 100 100" class="moon-svg" aria-hidden="true">` +
+      `<circle cx="50" cy="50" r="45" fill="#16224a" stroke="#39518f" stroke-width="2.5"/>` +
+      `<path d="${d}" fill="#e8eefc"/></svg>` +
+      `<div class="moon-info"><div class="moon-name">${nombre}</div>` +
+      `<div class="moon-pct">${ilum}% iluminada</div></div>`;
+  }
+  pintarLuna();
+  setInterval(pintarLuna, 60 * 60 * 1000);
   loadWeather();
   setInterval(loadWeather, 30 * 60 * 1000);
 })();
@@ -618,15 +650,16 @@ const SEGUNDOS_ROTACION_FILAS = 10;
 /* ================= RUTAS + FLIP INFERIOR: lógica (corte, sin fade) ================= */
 (function(){
   const cfg = CONFIG_PARTE;
-  let page = 0;
   let timer = null;
+  let cola = [];
+  let slotOcupado = [false, false];
+  let slotTimer = [null, null];
+  let inicioRutas = 0;
   const mareasFace = document.querySelector('.face-mareas');
   const rutasFace = document.querySelector('.face-rutas');
 
   function normalize(s) { return (s || '').toString().toLowerCase().replace(/[áàä]/g,'a').replace(/[éèë]/g,'e').replace(/[íìï]/g,'i').replace(/[óòö]/g,'o').replace(/[úùü]/g,'u').replace(/ñ/g,'n'); }
   function escapeHtml(v) { return (v ?? '').toString().replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
-  function isLongObs(v) { return (v ?? '').toString().length > 28; }
-  function isLongTramo(v) { return (v ?? '').toString().length > 30; }
   function statusClass(estado) {
     const e = normalize(estado);
     if (e.includes('cort')) return 'cortado';
@@ -643,32 +676,78 @@ const SEGUNDOS_ROTACION_FILAS = 10;
     if (e.includes('restring') || e.includes('precau')) return 'caution';
     return '';
   }
-  function buildRowsHtml(visible) {
-    return visible.map((r) => {
-      const chip = statusClass(r.estado);
-      const klass = rowClass(r.estado);
-      return `<tr class="${klass}">
+  function buildRowHtml(r) {
+    const chip = statusClass(r.estado);
+    const klass = rowClass(r.estado);
+    return `<tr class="${klass}">
         <td class="route">${escapeHtml(r.ruta)}</td>
         <td class="type">${escapeHtml(r.tipo)}</td>
-        <td class="tramo-col ${isLongTramo(r.tramo) ? 'obs-scroll' : ''}">
-          <div class="obs-viewport"><div class="obs-track"><span>${escapeHtml(r.tramo)}</span><span>${escapeHtml(r.tramo)}</span></div></div>
-        </td>
+        <td class="tramo-col"><div class="obs-viewport"><span class="slide">${escapeHtml(r.tramo)}</span></div></td>
         <td><span class="chip ${chip}">${escapeHtml(r.estado)}</span></td>
         <td class="surface">${escapeHtml(r.calzada)}</td>
-        <td class="obs ${isLongObs(r.observaciones) ? 'obs-scroll' : ''}">
-          <div class="obs-viewport"><div class="obs-track"><span>${escapeHtml(r.observaciones)}</span><span>${escapeHtml(r.observaciones)}</span></div></div>
-        </td>
+        <td class="obs"><div class="obs-viewport"><span class="slide">${escapeHtml(r.observaciones)}</span></div></td>
       </tr>`;
-    }).join('');
   }
-  function paintRows() {
+  // Desliza el texto SOLO lo necesario para mostrar lo que quedo oculto
+  // (sin repetir la informacion). Devuelve cuanto tarda en completarse (ms).
+  function animarCelda(vp) {
+    const span = vp.querySelector('.slide');
+    if (!span) return 0;
+    const oculto = span.offsetWidth - (vp.clientWidth - 24);
+    if (oculto <= 1) return 0;
+    const seg = oculto / VEL_SCROLL_CELDA;
+    // Al terminar la pasada el texto se fija SIN transform: el navegador lo
+    // re-dibuja nitido (evita el borroso que deja la capa animada por GPU).
+    span.addEventListener('transitionend', () => {
+      span.style.transition = 'none';
+      span.style.transform = 'none';
+      span.style.marginLeft = `-${oculto + 14}px`;
+    }, { once: true });
+    span.style.transition = `transform ${seg.toFixed(2)}s linear ${SEG_PAUSA_SCROLL}s`;
+    requestAnimationFrame(() => { span.style.transform = `translateX(${-(oculto + 14)}px)`; });
+    return (SEG_PAUSA_SCROLL + seg + SEG_PAUSA_SCROLL) * 1000;
+  }
+  // ----- Motor de filas independientes -----
+  // Cada una de las 2 filas visibles avanza POR SU CUENTA: la ruta queda en
+  // pantalla hasta que su tramo y sus observaciones completaron el recorrido,
+  // y recien ahi entra la siguiente. Cuando TODAS las rutas scrapeadas se
+  // mostraron (y paso el minimo DURACION_RUTAS_SEG), se vuelve a mareas.
+  function llenarSlot(slot) {
     const tbody = document.getElementById('rows');
-    const rows = cfg.filas || [];
-    const totalPages = Math.max(1, Math.ceil(rows.length / FILAS_VISIBLES));
-    if (page >= totalPages) page = 0;
-    const visible = rows.slice(page * FILAS_VISIBLES, page * FILAS_VISIBLES + FILAS_VISIBLES);
-    // Corte directo: sin animación de salida/entrada.
-    tbody.innerHTML = buildRowsHtml(visible);
+    const filas = cfg.filas || [];
+    if (!filas.length) return;
+    if (!cola.length) { slotOcupado[slot] = false; chequearCiclo(); return; }
+    const r = filas[cola.shift()];
+    slotOcupado[slot] = true;
+    const tpl = document.createElement('tbody');
+    tpl.innerHTML = buildRowHtml(r);
+    const tr = tpl.firstElementChild;
+    if (tbody.children[slot]) tbody.replaceChild(tr, tbody.children[slot]);
+    else tbody.appendChild(tr);
+    requestAnimationFrame(() => {
+      let dur = SEG_LECTURA_FILA * 1000;
+      tr.querySelectorAll('.obs-viewport').forEach((vp) => { dur = Math.max(dur, animarCelda(vp)); });
+      clearTimeout(slotTimer[slot]);
+      slotTimer[slot] = setTimeout(() => llenarSlot(slot), dur + 400);
+    });
+  }
+  function iniciarCiclo() {
+    cola = (cfg.filas || []).map((_, i) => i);
+    document.getElementById('rows').innerHTML = '';
+    llenarSlot(0);
+    if ((cfg.filas || []).length > 1) llenarSlot(1);
+  }
+  function chequearCiclo() {
+    if (slotOcupado[0] || slotOcupado[1]) return;
+    if (Date.now() - inicioRutas < DURACION_RUTAS_SEG * 1000) iniciarCiclo();
+    else mostrarMareas();
+  }
+  function pararSlots() {
+    clearTimeout(slotTimer[0]); clearTimeout(slotTimer[1]);
+    slotOcupado = [false, false];
+  }
+  function reiniciarRutas() {
+    if (rutasFace.classList.contains('active')) { pararSlots(); iniciarCiclo(); }
   }
   // ----- Ticker de noticias: marquesina controlada por JS -----
   // Inmune a los reinicios de las animaciones CSS (mostrar/ocultar la cara,
@@ -705,35 +784,24 @@ const SEGUNDOS_ROTACION_FILAS = 10;
     tkPos = 0; tkCopyW = 0;
     el.style.transform = 'translateX(0)';
   }
-  function duracionRutasMs() {
-    // Se mantiene al aire DURACION_RUTAS_SEG o lo que tarde en verse TODA la
-    // informacion: un ciclo completo de paginas Y una vuelta completa del
-    // ticker de noticias (lo que sea mayor).
-    const totalPages = Math.max(1, Math.ceil((cfg.filas || []).length / FILAS_VISIBLES));
-    const cicloPaginasMs = totalPages * SEGUNDOS_ROTACION_FILAS * 1000;
-    const vueltaTickerMs = cicloTickerMs(); // medido con la cara visible
-    return Math.max(DURACION_RUTAS_SEG * 1000, cicloPaginasMs, vueltaTickerMs);
-  }
   function mostrarRutas() {
-    page = 0;               // arranca siempre desde la primera pagina
-    paintRows();
     mareasFace.classList.remove('active');
     rutasFace.classList.add('active');
     clearTimeout(timer);
-    // rAF: la cara ya esta visible, asi el ancho del ticker se mide bien
-    requestAnimationFrame(() => { timer = setTimeout(mostrarMareas, duracionRutasMs()); });
+    inicioRutas = Date.now();
+    // rAF: la cara ya esta visible, los anchos se miden bien
+    requestAnimationFrame(() => { medirTicker(); iniciarCiclo(); });
   }
   function mostrarMareas() {
+    pararSlots();
     rutasFace.classList.remove('active');
     mareasFace.classList.add('active');
     clearTimeout(timer);
     timer = setTimeout(mostrarRutas, DURACION_MAREAS_SEG * 1000);
   }
-  paintRows();
   paintTicker();
   requestAnimationFrame(pasoTicker);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { tkCopyW = 0; });
-  setInterval(() => { if (rutasFace.classList.contains('active')) { page += 1; paintRows(); } }, SEGUNDOS_ROTACION_FILAS * 1000);
   timer = setTimeout(mostrarRutas, DURACION_MAREAS_SEG * 1000);
 
   // ----- Descarga automatica del parte.json que publica el robot -----
@@ -744,7 +812,8 @@ const SEGUNDOS_ROTACION_FILAS = 10;
       const j = await r.json();
       if (Array.isArray(j.filas) && j.filas.length) cfg.filas = j.filas;
       if (Array.isArray(j.avisos) && j.avisos.length) cfg.avisos = j.avisos;
-      page = 0; paintRows(); paintTicker();
+      paintTicker();
+      reiniciarRutas();
       console.log('Parte remoto cargado:', j.actualizado || '');
     } catch (e) {
       console.error('No se pudo bajar el parte remoto, se usa el respaldo embebido:', e);
