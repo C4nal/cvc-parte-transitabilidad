@@ -1,5 +1,5 @@
 {
-  "actualizado": "08/08/2026 11:10",
+  "actualizado": "08/08/2026 14:53",
   "fecha_parte_nacional": "08/08 09:40",
   "fecha_parte_provincial": "08/08 09:40",
   "fuente_nacional": "htm",
@@ -151,6 +151,7 @@
     }
   ],
   "avisos": [
+    "La Corte Suprema anuló un fallo que había incrementado una indemnización laboral sin pedido de la parte demandante",
     "2.600 Luminarias Led llegarán a Caleta Olivia",
     "El Senado dio media sanción al proyecto de inviolabilidad a la propiedad privada",
     "Santa Cruz reafirma su compromiso con el acceso igualitario a la vivienda",
@@ -159,8 +160,7 @@
     "El Municipio de Rio Gallegos y Vialidad Nacional logran consenso para avanzan en un plan de trabajo conjunto",
     "Desbaratan una organización dedicada al tráfico de drogas sintéticas entre Chubut y Buenos Aires",
     "Presentaron el nuevo Sistema de Guía de Tránsito Electrónica",
-    "Educación: Entrega de libros en escuelas primarias con una nueva jornada en el Colegio Salesiano",
-    "La Corte Suprema aprobó su presupuesto 2027 y reclamó al Gobierno mayores recursos"
+    "Educación: Entrega de libros en escuelas primarias con una nueva jornada en el Colegio Salesiano"
   ],
   "avisos_max_id": 0
 }
