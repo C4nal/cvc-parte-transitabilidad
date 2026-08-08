@@ -47,9 +47,7 @@ I24_SECCIONES = ["categoria/2/actualidad", "categoria/5/politica",
 I24_GNEWS = ("https://news.google.com/rss/search?q=site:i24.com.ar"
              "&hl=es-419&gl=AR&ceid=AR:es-419")
 # Texto institucional para el ticker mientras no haya acceso directo a i24.
-PUBLICIDAD_I24 = ["En i24 encontrarás noticias de último momento del ámbito policial, "
-                  "política, actualidad, deporte, internacional, cultural y más, "
-                  "porque i24 es información las 24 horas"]
+PUBLICIDAD_I24 = ["i24 Noticias las 24 horas · www.i24.com.ar · Actualidad al instante"]
 # Respaldo Google News APAGADO provisoriamente: si i24 no responde, sale la
 # publicidad. Cuando este la llave I24_TOKEN funcionando, poner True para
 # recuperar tambien el respaldo.
