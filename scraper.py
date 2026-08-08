@@ -46,6 +46,15 @@ I24_SECCIONES = ["categoria/2/actualidad", "categoria/5/politica",
 # Respaldo si i24 bloquea al robot (p. ej. Cloudflare): notas via Google News.
 I24_GNEWS = ("https://news.google.com/rss/search?q=site:i24.com.ar"
              "&hl=es-419&gl=AR&ceid=AR:es-419")
+# Texto institucional para el ticker mientras no haya acceso directo a i24.
+PUBLICIDAD_I24 = ["En i24 encontrarás noticias de último momento del ámbito policial, "
+                  "política, actualidad, deporte, internacional, cultural y más, "
+                  "porque i24 es información las 24 horas"]
+# Respaldo Google News APAGADO provisoriamente: si i24 no responde, sale la
+# publicidad. Cuando este la llave I24_TOKEN funcionando, poner True para
+# recuperar tambien el respaldo.
+USAR_GOOGLE_NEWS = False
+
 # Llave para que el Cloudflare del propio i24 deje pasar al robot.
 # Se carga como secret I24_TOKEN en GitHub + una regla WAF en Cloudflare
 # que saltea las protecciones cuando llega el header X-CVC-Robot con esta llave.
@@ -736,8 +745,11 @@ def obtener_avisos():
         ventana = (destacadas + resto)[:AVISOS_VENTANA + PORTADA_PRIMERAS]
         DIAG_I24.append(f"- {len(notas)} notas unicas; id mas nuevo: {AVISOS_INFO['max_id']}; "
                         f"portada (orden editorial): {[c for c, _ in portada_orden[:PORTADA_PRIMERAS]]}")
-    else:
+    elif USAR_GOOGLE_NEWS:
         ventana = _avisos_google_news()
+    else:
+        DIAG_I24.append("- i24 sin acceso y respaldo Google News APAGADO: sale la publicidad institucional")
+        ventana = []
     if not ventana:
         return []
 
@@ -789,7 +801,7 @@ def escribir_resumen(partes, salida, rutas_ok, avisos_ok):
     if avisos_ok:
         L.append(f"## ✅ Titulares i24 actualizados ({len(salida['avisos'])})")
     else:
-        L.append("## ⚠️ Titulares i24 NO actualizados (se mantienen los anteriores)")
+        L.append("## ⚠️ Sin acceso a i24: el ticker lleva la publicidad institucional")
     for a in salida["avisos"]:
         L.append(f"- {a}")
     L.append("")
@@ -846,7 +858,8 @@ def main():
     if not rutas_ok:
         filas = previo.get("filas", [])
     if not avisos_ok:
-        avisos = previo.get("avisos", ["Informacion actualizada."])
+        # Provisorio: sin titulares frescos de i24, el ticker lleva la publicidad
+        avisos = list(PUBLICIDAD_I24)
 
     # Guardian de frescura: si i24 respondio con una pagina CACHEADA mas vieja
     # que lo ya publicado (id mas nuevo menor), se mantienen los titulares
