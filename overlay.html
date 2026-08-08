@@ -30,6 +30,12 @@
      Lienzo: 1920x1080 (16:9, formato TV). vMix: fuente Web Browser,
      25 fps.
      ============================================================ */
+  @font-face {
+    font-family: 'Alte Haas Grotesk';
+    src: url('alte-haas-bold.ttf') format('truetype');
+    font-weight: 700;
+    font-display: swap;
+  }
   * { box-sizing: border-box; }
   html, body {
     margin: 0;
@@ -100,7 +106,7 @@
   .top-bars div:nth-child(2) { flex: 1; background: var(--pink); }
   .top-bars div:nth-child(3) { flex: 1; background: var(--orange); }
   .w-current {
-    padding: 36px 16px 26px;
+    padding: 18px 16px 14px;
     display: grid; grid-template-columns: 92px minmax(0, 1fr); grid-template-rows: 96px auto;
     align-items: center; column-gap: 10px; row-gap: 10px;
     border-bottom: 1px solid var(--line); flex-shrink: 0; text-align: center;
@@ -110,32 +116,32 @@
   .w-temp { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 94px; color: #fff; line-height: .9; letter-spacing: -1px; display: flex; align-items: flex-start; width: 100%; transform: translateY(2px); }
   .w-temp .deg { font-size: 40px; color: var(--muted); margin-left: 1px; transform: translateY(3px); }
   .w-desc { grid-column: 1 / -1; font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 18px; color: var(--soft); line-height: 1.15; text-align: center; max-width: 210px; max-height: 42px; overflow: hidden; margin: 0 auto; }
-  .w-stats { padding: 22px 16px; display: flex; flex-direction: column; gap: 16px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  .w-stats { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
   .w-stat { background: var(--panel); padding: 11px 9px; border-left: 3px solid var(--accent); display: grid; grid-template-columns: minmax(70px,1fr) auto; align-items: center; gap: 6px; min-height: 66px; }
   .w-stat-label { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 16px; color: var(--accent); letter-spacing: 1px; white-space: nowrap; }
   .w-stat-value { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 36px; color: #fff; line-height: 1; text-align: right; justify-self: end; white-space: nowrap; }
   .w-stat-value.wind { font-size: 36px; }
   .w-stat-value small { font-size: 15px; color: var(--muted); font-family: 'Barlow', sans-serif; font-weight: 600; }
   .w-forecast { padding: 16px 12px 16px; flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
-  .w-forecast-title { font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 13px; color: var(--muted); letter-spacing: 1.6px; margin-bottom: 10px; flex-shrink: 0; }
-  .w-forecast-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
-  .w-day { height: 100%; min-width: 0; background: var(--panel); padding: 10px 4px 10px; display: grid; grid-template-rows: auto 1fr 1fr; text-align: center; overflow: hidden; }
-  .w-day-label { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 16px; color: var(--soft); letter-spacing: 1px; line-height: 1; }
+  .w-forecast-title { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 16px; color: var(--muted); letter-spacing: 1.8px; margin-bottom: 12px; flex-shrink: 0; }
+  .w-forecast-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; align-content: start; }
+  .w-day { height: 100%; min-width: 0; background: var(--panel); padding: 10px 4px 10px; display: grid; grid-template-rows: auto auto auto; row-gap: 3px; text-align: center; overflow: hidden; }
+  .w-day-label { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 17px; color: var(--soft); letter-spacing: 1px; line-height: 1; }
   .w-day-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
   .w-day-icon svg { width: 46px; height: 46px; display: block; overflow: visible; }
   .w-day-icon .ray, .w-day-icon .drop, .w-day-icon .snow, .w-day-icon .fog-line, .w-day-icon .bolt, .w-day-icon .cloud-shape, .w-day-icon .sun-core, .w-day-icon .moon-core { animation: none !important; }
   /* Mitad CLIMA: icono + temperatura maxima estimada, pegados al dia */
   .w-day-clima { min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; overflow: hidden; }
-  .w-day-temps { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; color: #fff; line-height: 1; white-space: nowrap; }
+  .w-day-temps { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 32px; color: #fff; line-height: 1; white-space: nowrap; }
   /* Mitad VIENTO: mismo peso visual que el clima */
-  .w-day-wind { min-height: 0; border-top: 1px solid var(--line); margin: 5px 6px 0; padding-top: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; overflow: hidden; }
+  .w-day-wind { justify-self: stretch; border-top: 1px solid var(--line); margin: 3px 6px 0; padding-top: 8px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 3px; }
   .wd-dir { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 1px; }
-  .wd-icon { width: 23px; height: 23px; color: var(--sky); flex-shrink: 0; }
-  .wd-arrow { width: 22px; height: 22px; color: var(--orange); flex-shrink: 0; }
-  .wd-vel { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; color: #fff; line-height: 1; white-space: nowrap; }
-  .wd-unit { font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 10.5px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; line-height: 1; }
-  .wd-raf-label { font-family: 'Barlow', sans-serif; font-weight: 800; font-size: 10.5px; color: var(--orange); letter-spacing: 1.4px; line-height: 1; margin-top: 3px; }
-  .wd-raf { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 24px; color: var(--orange); line-height: 1; white-space: nowrap; }
+  .wd-icon { width: 24px; height: 24px; color: var(--sky); flex-shrink: 0; }
+  .wd-arrow { width: 23px; height: 23px; color: var(--orange); flex-shrink: 0; }
+  .wd-vel { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 32px; color: #fff; line-height: 1; white-space: nowrap; }
+  .wd-unit { font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 11.5px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; line-height: 1; }
+  .wd-raf-label { font-family: 'Barlow', sans-serif; font-weight: 800; font-size: 11.5px; color: var(--orange); letter-spacing: 1.4px; line-height: 1; margin-top: 3px; }
+  .wd-raf { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; color: var(--orange); line-height: 1; white-space: nowrap; }
   .w-error { color: #ff8a80 !important; }
 
   .weather-svg * { transform-box: fill-box; transform-origin: center; }
@@ -243,7 +249,7 @@
   .ticker-label { flex: 0 0 112px; height: 100%; display: grid; place-items: center; background: rgba(10,10,10,.86); border-right: 1px solid rgba(255,255,255,.13); }
   .ticker-logo { display: block; width: 92px; height: 38px; object-fit: contain; filter: drop-shadow(0 0 6px rgba(255,148,34,.32)); animation: i24Appear 3.4s ease-in-out infinite; }
   .ticker-viewport { flex: 1 1 auto; min-width: 0; height: 100%; overflow: hidden; padding-left: 18px; display: flex; align-items: center; }
-  .ticker-track { display: flex; min-width: 200%; height: 24px; align-items: center; will-change: transform; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 19px; line-height: 24px; letter-spacing: 1.6px; color: #fff; text-transform: uppercase; white-space: nowrap; }
+  .ticker-track { display: flex; min-width: 200%; height: 24px; align-items: center; will-change: transform; font-family: 'Alte Haas Grotesk', 'Barlow', sans-serif; font-weight: 700; font-size: 22px; line-height: 24px; letter-spacing: .8px; color: #fff; text-transform: uppercase; white-space: nowrap; }
   .ticker-track span { padding-right: 78px; }
 </style>
 </head>
@@ -716,6 +722,7 @@ const SEGUNDOS_ROTACION_FILAS = 10;
   paintRows();
   paintTicker();
   requestAnimationFrame(pasoTicker);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { tkCopyW = 0; });
   setInterval(() => { if (rutasFace.classList.contains('active')) { page += 1; paintRows(); } }, SEGUNDOS_ROTACION_FILAS * 1000);
   timer = setTimeout(mostrarRutas, DURACION_MAREAS_SEG * 1000);
 
