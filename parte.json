@@ -1,7 +1,7 @@
 {
-  "actualizado": "08/08/2026 16:47",
-  "fecha_parte_nacional": "08/08 09:40",
-  "fecha_parte_provincial": "08/08 09:40",
+  "actualizado": "08/08/2026 18:17",
+  "fecha_parte_nacional": "08/08 16:00",
+  "fecha_parte_provincial": "08/08 16:00",
   "fuente_nacional": "htm",
   "fuente_provincial": "htm",
   "filas": [
@@ -11,7 +11,7 @@
       "tramo": "Limite Provincia de Chubut / Caleta Olivia",
       "estado": "PRECAUCION",
       "calzada": "Bueno-Regular",
-      "observaciones": "Banquina inestable Desvío. Presencia de escarcha."
+      "observaciones": "Banquina inestable Desvío. Calzada húmeda."
     },
     {
       "ruta": "RP 12",
@@ -19,7 +19,7 @@
       "tramo": "Caleta Olivia / Cañadón Seco",
       "estado": "PRECAUCION",
       "calzada": "Bueno-Regular",
-      "observaciones": "Banquina inestable Presencia de escarcha."
+      "observaciones": "Banquina inestable Presencia de escarcha. Calzada húmeda."
     },
     {
       "ruta": "RP 14",
@@ -51,7 +51,7 @@
       "tramo": "Puerto Deseado / Emp. R.N. Nº 3",
       "estado": "PRECAUCION",
       "calzada": "Bueno-Regular",
-      "observaciones": "Animales sueltos Presencia de escarcha. Banquina inestable Tareas preventivas, riego de liquido antihielo."
+      "observaciones": "Banquinas Inestables / Animales sueltos. Visibilidad reducida por lluvia Vientos fuertes o vientos muy fuertes."
     },
     {
       "ruta": "RP 17",
@@ -67,7 +67,7 @@
       "tramo": "Limite Provincia de Chubut / Perito Moreno (Emp. R.P Nº 43)",
       "estado": "EXTREMA",
       "calzada": "Bueno-Regular",
-      "observaciones": "Banquinas Inestables / Animales sueltos. Calzada con baches y nieve. Vientos leves."
+      "observaciones": "Banquinas Inestables / Animales sueltos. Calzada con baches y nieve. Visibilidad reducida por voladeros."
     },
     {
       "ruta": "RN 288",
@@ -76,22 +76,6 @@
       "estado": "EXTREMA",
       "calzada": "Bueno-Regular",
       "observaciones": "Animales sueltos Presencia de escarcha."
-    },
-    {
-      "ruta": "RN 40",
-      "tipo": "Nacional",
-      "tramo": "Emp. R.P. Nº 29 (Lago Cardiel) / Emp. R.P. Nº 73 (Ea. La Siberia)",
-      "estado": "CORTADO",
-      "calzada": "Bueno-Regular",
-      "observaciones": "Restringida para todo tipo de vehículos Acumulación de nieve. Despeje de nieve Equipos y personal trabajando."
-    },
-    {
-      "ruta": "RN 40",
-      "tipo": "Nacional",
-      "tramo": "Emp. R.P. Nº 73 (Ea. La Siberia) / Ea. La Lucia (pavimento)",
-      "estado": "CORTADO",
-      "calzada": "Bueno-Regular",
-      "observaciones": "Restringida para todo tipo de vehículos Acumulación de nieve. Despeje de nieve Equipos y personal trabajando."
     },
     {
       "ruta": "RP 14",
@@ -148,6 +132,22 @@
       "estado": "CORTADO",
       "calzada": "Regular-Malo",
       "observaciones": "Restringida para todo tipo de vehículos Restricción hasta nuevo aviso."
+    },
+    {
+      "ruta": "RP 47",
+      "tipo": "Provincial",
+      "tramo": "Emp. R.N. Nº 281 (Tellier) / Emp. R.P. Nº 62",
+      "estado": "RESTRINGIDO",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Restringida para todo tipo de vehículos."
+    },
+    {
+      "ruta": "RP 47",
+      "tipo": "Provincial",
+      "tramo": "Emp. R.P. Nº 62 / Emp. R.N. Nº 3 (El Salado)",
+      "estado": "RESTRINGIDO",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Restringida para todo tipo de vehículos."
     }
   ],
   "avisos": [
