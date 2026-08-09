@@ -1,7 +1,7 @@
 {
-  "actualizado": "09/08/2026 08:50",
-  "fecha_parte_nacional": "08/08 16:00",
-  "fecha_parte_provincial": "08/08 16:00",
+  "actualizado": "09/08/2026 11:12",
+  "fecha_parte_nacional": "09/08 08:00",
+  "fecha_parte_provincial": "09/08 08:00",
   "fuente_nacional": "htm",
   "fuente_provincial": "htm",
   "filas": [
@@ -9,25 +9,25 @@
       "ruta": "RN 3",
       "tipo": "Nacional",
       "tramo": "Limite Provincia de Chubut / Caleta Olivia",
-      "estado": "PRECAUCION",
+      "estado": "INFORMACION",
       "calzada": "Bueno-Regular",
-      "observaciones": "Banquina inestable Desvío. Calzada húmeda."
+      "observaciones": "Desvío. Calzada húmeda."
     },
     {
       "ruta": "RP 12",
       "tipo": "Provincial",
       "tramo": "Caleta Olivia / Cañadón Seco",
-      "estado": "PRECAUCION",
+      "estado": "INFORMACION",
       "calzada": "Bueno-Regular",
-      "observaciones": "Banquina inestable Presencia de escarcha. Calzada húmeda."
+      "observaciones": "Presencia de escarcha. Calzada húmeda."
     },
     {
       "ruta": "RP 14",
       "tipo": "Provincial",
-      "tramo": "Emp. R.N. Nº 281 / Emp. R.P. Nº 91 (Cabo Blanco)",
+      "tramo": "Emp. R.N. Nº 281 SIN DATOS Intransitable / Emp. R.P. Nº 91 (Cabo Blanco)",
       "estado": "RESTRINGIDO",
       "calzada": "Bueno-Regular",
-      "observaciones": "Restringida para todo tipo de vehículos."
+      "observaciones": "Sin novedades."
     },
     {
       "ruta": "RP 43",
@@ -49,17 +49,17 @@
       "ruta": "RN 281",
       "tipo": "Nacional",
       "tramo": "Puerto Deseado / Emp. R.N. Nº 3",
-      "estado": "PRECAUCION",
+      "estado": "INFORMACION",
       "calzada": "Bueno-Regular",
-      "observaciones": "Banquinas Inestables / Animales sueltos. Visibilidad reducida por lluvia Vientos fuertes o vientos muy fuertes."
+      "observaciones": "Visibilidad reducida por lluvia Vientos fuertes o vientos muy fuertes."
     },
     {
       "ruta": "RP 17",
       "tipo": "Provincial",
       "tramo": "Emp. R.N. N° 288 / Emp. R.P. Nº 65",
-      "estado": "PRECAUCION",
+      "estado": "INFORMACION",
       "calzada": "Bueno-Regular",
-      "observaciones": "Animales sueltos Calzada con barro / Acumulación de barro. Calzada con cortes y desvios."
+      "observaciones": "Calzada con barro / Acumulación de barro. Calzada con cortes y desvios."
     },
     {
       "ruta": "RN 40",
@@ -73,25 +73,25 @@
       "ruta": "RN 288",
       "tipo": "Nacional",
       "tramo": "Pto. Punta Quilla / Pto. Santa Cruz",
-      "estado": "EXTREMA",
+      "estado": "INFORMACION",
       "calzada": "Bueno-Regular",
-      "observaciones": "Animales sueltos Presencia de escarcha."
+      "observaciones": "Presencia de escarcha."
     },
     {
       "ruta": "RP 14",
       "tipo": "Provincial",
-      "tramo": "Emp. R.P. Nº 91 (a Cabo Blanco) / Emp. R.P. Nº 68 (Ea. La Madrugada)",
+      "tramo": "Emp. R.P. Nº 91 (a Cabo Blanco) SIN DATOS Intransitable / Emp. R.P. Nº 68 (Ea. La Madrugada)",
       "estado": "RESTRINGIDO",
       "calzada": "Bueno-Regular",
-      "observaciones": "Restringida para todo tipo de vehículos."
+      "observaciones": "Sin novedades."
     },
     {
       "ruta": "RP 14",
       "tipo": "Provincial",
-      "tramo": "Emp. R.P. Nº 68 (Ea. La Madrugada) / Mazaredo",
+      "tramo": "Emp. R.P. Nº 68 (Ea. La Madrugada) SIN DATOS Intransitable / Mazaredo",
       "estado": "RESTRINGIDO",
       "calzada": "Bueno-Regular",
-      "observaciones": "Restringida para todo tipo de vehículos."
+      "observaciones": "Sin novedades."
     },
     {
       "ruta": "RP 41",
@@ -126,28 +126,28 @@
       "observaciones": "Restricción hasta nuevo aviso. Acumulación de nieve y barro sobre la calzada."
     },
     {
-      "ruta": "RP 41",
+      "ruta": "RP 47",
       "tipo": "Provincial",
-      "tramo": "Emp. R.P. Nº 39 (Lago Posadas) / Pque Nac. Perito Moreno (Destac. Onelli)",
-      "estado": "CORTADO",
-      "calzada": "Regular-Malo",
-      "observaciones": "Restringida para todo tipo de vehículos Restricción hasta nuevo aviso."
+      "tramo": "Emp. R.N. Nº 281 (Tellier) SIN DATOS Intransitable / Emp. R.P. Nº 62",
+      "estado": "RESTRINGIDO",
+      "calzada": "Bueno-Regular",
+      "observaciones": "Sin novedades."
     },
     {
       "ruta": "RP 47",
       "tipo": "Provincial",
-      "tramo": "Emp. R.N. Nº 281 (Tellier) / Emp. R.P. Nº 62",
+      "tramo": "Emp. R.P. Nº 62 SIN DATOS Intransitable / Emp. R.N. Nº 3 (El Salado)",
       "estado": "RESTRINGIDO",
       "calzada": "Bueno-Regular",
-      "observaciones": "Restringida para todo tipo de vehículos."
+      "observaciones": "Sin novedades."
     },
     {
-      "ruta": "RP 47",
+      "ruta": "RP 49",
       "tipo": "Provincial",
-      "tramo": "Emp. R.P. Nº 62 / Emp. R.N. Nº 3 (El Salado)",
+      "tramo": "Bosques Petrificados SIN DATOS Intransitable / Emp. R.P. N° 12 (Ea. Aguada de Cuero)",
       "estado": "RESTRINGIDO",
       "calzada": "Bueno-Regular",
-      "observaciones": "Restringida para todo tipo de vehículos."
+      "observaciones": "Sin novedades."
     }
   ],
   "avisos": [
